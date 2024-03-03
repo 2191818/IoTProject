@@ -1,0 +1,116 @@
+  /* Header styling */
+        header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #333;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            width: 100%;
+            position: fixed;
+            top: 0; 
+            z-index: 1000; 
+        }
+		
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(90deg, #2C3E50, #34495E);
+            color: white; 
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Style the button */
+        .toggle-button {
+            background-color: #333;
+            border: 2px solid #ccc;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .toggle-button:hover {
+            background-color: #555;
+        }
+
+        /* Hide the default HTML checkbox */
+        .toggle-button input {
+            display: none;
+        }
+
+        /* Toggle switch */
+        .toggle-slider {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            background-color: #666;
+            border-radius: 34px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "\f0eb"; /* Lightbulb icon */
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 18px;
+            top: 6px;
+            left: 6px;
+            color: #fff; /* White color when on */
+            transition: transform 0.3s;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            color: #f1c40f; /* Yellow color when on */
+        }
+
+        /* Rounded sliders */
+        .toggle-slider.round {
+            border-radius: 34px;
+        }
+
+        /* Increase bottom spacing */
+        .container {
+            margin-bottom: 20px;
+        }
+		
+	    /* Card styling */
+        .card {
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            width: 40%;
+            margin: 0 auto; 
+            text-align: center; 
+            background-color: #e0e5ec;
+			color: black;
+            padding: 20px;
+			border-radius: 50px; 
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .card .container {
+            padding: 2px 16px;
+        }
+
+        /* Footer styling */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard</title>
+    <!-- Link to Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+   <!-- Link to external stylesheet -->
+	<link rel="stylesheet" href="CSS/styles.css">
+</head>
+
+<body>
+<header>
+    IoT Dashboard
+</header>
+<div class="card">
+    <div class="container">
+        <!-- Lightbulb icon for on/off -->
+        <label class="toggle-button">
+            Toggle Light
+            <input id="toggle_button" type="checkbox">
+            <span class="toggle-slider round"></span>
+        </label>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#toggle_button').click(function(){
+                $.get('/toggle', function(){
+                    // Update the background gradient and text color based on the light status
+                    if ($('#toggle_button').prop('checked')) {
+                        // Light is on
+                        $('body').css({
+                            'background': 'linear-gradient(90deg, #a1c4fd, #c2e9fb)',
+                            'color': 'black'
+                        });
+                    } else {
+                        // Light is off
+                        $('body').css({
+                            'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
+                            'color': 'white'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <div class="container">
+        <h4><b>Phase 1</b></h4>
+        <p>Light Control</p>
+    </div>
+</div>
+
+<footer>
+    &copy; 2024 - Muhammad Arsalan Saeed, Nabil Ramadan & Hibba Qaraman.
+</footer>
+
+</body>
+</html>
