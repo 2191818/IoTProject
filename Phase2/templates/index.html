@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard</title>
+    <!-- Link to Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Link to Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Link to external stylesheets -->
+    <link rel="stylesheet" href="../static/styles/dashboard.css">
+    <link rel="stylesheet" href="../static/styles/fan.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <header>
+        IoT Dashboard
+    </header>
+
+
+    <div class="dashboard-container">
+
+        <div class="card-container">
+            <div class="container">
+                <h4><b>Phase 1: LED Control</b></h4> 
+            </div>
+            <!-- Lightbulb icon for on/off -->
+            <label class="toggle-button">
+                Toggle Light
+                <input id="toggle_button" type="checkbox">
+                <span class="toggle-slider round"></span>
+            </label>
+        </div>
+
+        <div class="row-container">
+
+            <!-- Fan Widget -->
+            <div class="card-container">
+                <div class="ceiling-container">
+                    <div class="ceiling-fan horizontal left"></div>
+                    <div class="ceiling-fan horizontal right"></div>
+                    <div class="ceiling-fan vertical rotated top"></div>
+                    <div class="ceiling-fan vertical rotated bottom"></div>
+                </div>
+
+                <button id="fanButton"> Turn On/Off</button>
+            </div>
+
+            <!-- Temperature Gauge -->
+            <div class="card-container">
+                <h4><b>Temperature</b></h4>
+                <div class="gauge temperature-gauge"></div>
+            </div>
+
+            <!-- Humidity Gauge -->
+            <div class="card-container">
+                <h4><b>Humidity</b></h4>
+                <div class="gauge humidity-gauge"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Define gradient within the HTML -->
+    <svg width="0" height="0" version="1.1" class="gradient-mask" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="gradientGauge">
+                <stop class="color-red" offset="0%" stop-color="#ff0000" />
+                <stop class="color-yellow" offset="17%" stop-color="#ffff00" />
+                <stop class="color-green" offset="40%" stop-color="#00ff00" />
+                <stop class="color-yellow" offset="87%" stop-color="#ffff00" />
+                <stop class="color-red" offset="100%" stop-color="#ff0000" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#toggle_button').click(function(){
+                $.get('/toggle', function(){
+                    // Update the background gradient and text color based on the light status
+                    if ($('#toggle_button').prop('checked')) {
+                        // Light is on
+                        $('body').css({
+                            'background': 'linear-gradient(90deg, #a1c4fd, #c2e9fb)',
+                            'color': 'black'
+                        });
+                    } else {
+                        // Light is off
+                        $('body').css({
+                            'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
+                            'color': 'white'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- DevExpress library -->
+    <script src="https://cdn3.devexpress.com/jslib/17.1.6/js/dx.all.js"></script>
+    <!-- Custom gauge script -->
+    <script src="../static/scripts/gauge.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            // Temperature Gauge
+            let temperatureGauge = new GaugeChart('.temperature-gauge', {
+                initialValue: 0,
+                higherValue: 60,
+                title: 'Temperature', // return temperature reading from RPi breadboard
+                subtitle: '0°C'
+            });
+
+            // Humidity Gauge
+            let humidityGauge = new GaugeChart('.humidity-gauge', {
+                initialValue: 0,
+                higherValue: 60,
+                title: 'Humidity',
+                subtitle: '0°C' // return humidity reading from RPi breadboard
+            });
+
+            // Initialize gauges
+            temperatureGauge.init();
+            humidityGauge.init();
+        });
+    </script>
+
+    <script>
+        var fanButton = document.getElementById('fanButton');
+        var fanContainer = document.querySelector('.ceiling-container');
+
+        fanButton.addEventListener('click', function () {
+            if (fanContainer.classList.contains('fan-on')) {
+                fanContainer.classList.remove('fan-on');
+                fanContainer.classList.add('fan-off');
+            } else {
+                fanContainer.classList.remove('fan-off');
+                fanContainer.classList.add('fan-on');
+            }
+        });
+    </script>
+
+    <footer>
+        &copy; 2024 - Muhammad Arsalan Saeed, Nabil Ramadan & Hibba Qaraman.
+    </footer>
+
+
+</body>
+
+</html>
