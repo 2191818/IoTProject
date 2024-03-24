@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,9 +25,9 @@
 
     <div class="dashboard-container">
 
-        <div class="card-container">
+        <div class="card-container" style="margin-top: 100px">
             <div class="container">
-                <h4><b>Phase 1: LED Control</b></h4> 
+                <h4><b>Phase 1: LED Control</b></h4>
             </div>
             <!-- Lightbulb icon for on/off -->
             <label class="toggle-button">
@@ -42,7 +41,7 @@
 
             <!-- Fan Widget -->
             <div class="card-container">
-                <div class="ceiling-container">
+                <div class="ceiling-container fan-off">
                     <div class="ceiling-fan horizontal left"></div>
                     <div class="ceiling-fan horizontal right"></div>
                     <div class="ceiling-fan vertical rotated top"></div>
@@ -53,13 +52,12 @@
             </div>
 
             <!-- Temperature Gauge -->
-            <div class="card-container">
+            <div class="card-container" style="padding:35px">
                 <h4><b>Temperature</b></h4>
                 <div class="gauge temperature-gauge"></div>
             </div>
-
             <!-- Humidity Gauge -->
-            <div class="card-container">
+            <div class="card-container" style="padding:35px">
                 <h4><b>Humidity</b></h4>
                 <div class="gauge humidity-gauge"></div>
             </div>
@@ -81,12 +79,12 @@
         </defs>
     </svg>
 
-    
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $('#toggle_button').click(function(){
-                $.get('/toggle', function(){
+        $(document).ready(function () {
+            $('#toggle_button').click(function () {
+                $.get('/toggle', function () {
                     // Update the background gradient and text color based on the light status
                     if ($('#toggle_button').prop('checked')) {
                         // Light is on

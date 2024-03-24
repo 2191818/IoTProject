@@ -9,8 +9,8 @@
 }
 
 .ceiling-container {
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
     position: relative;
     display: inline-block;
@@ -130,10 +130,12 @@
     background-color: rgb(17, 17, 86);
     cursor: pointer;
     font-size: 20px;
+    height: 25%;
 
 }
 
 #fanButton:hover {
     background-color: rgb(17, 167, 62);
     font-size: 20px;
+    height: 25%;
 }
