@@ -64,8 +64,6 @@
         </div>
     </div>
 
-
-
     <!-- Define gradient within the HTML -->
     <svg width="0" height="0" version="1.1" class="gradient-mask" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -78,7 +76,6 @@
             </linearGradient>
         </defs>
     </svg>
-
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
@@ -112,26 +109,41 @@
 
     <script>
         $(document).ready(function () {
-            // Temperature Gauge
-            let temperatureGauge = new GaugeChart('.temperature-gauge', {
-                initialValue: 0,
-                higherValue: 60,
-                title: 'Temperature', // return temperature reading from RPi breadboard
-                subtitle: '0°C'
-            });
+            let temperatureGauge;
+            let humidityGauge;
 
-            // Humidity Gauge
-            let humidityGauge = new GaugeChart('.humidity-gauge', {
-                initialValue: 0,
-                higherValue: 60,
-                title: 'Humidity',
-                subtitle: '0°C' // return humidity reading from RPi breadboard
-            });
+            // Fetch the temperature and humidity values from Flask endpoint
+            $.get('/sensor_data', function (data) {
+                // Check if data is received and contains temperature and humidity fields
+                if ('temperature' in data && 'humidity' in data) {
+                    // Initialize Temperature Gauge
+                    temperatureGauge = new GaugeChart('.temperature-gauge', {
+                        initialValue: data.temperature,
+                        higherValue: 60,
+                        title: 'Temperature',
+                        subtitle: data.temperature.toFixed(2) + '°C',
+                        customTicks: [0, 10, 20, 30, 40, 50, 60]
+                    });
 
-            // Initialize gauges
-            temperatureGauge.init();
-            humidityGauge.init();
-        });
+                    // Initialize Humidity Gauge
+                    humidityGauge = new GaugeChart('.humidity-gauge', {
+                        initialValue: data.humidity,
+                        higherValue: 100,
+                        title: 'Humidity',
+                        subtitle: data.humidity.toFixed(2) + '%',
+                        customTicks: [0, 20, 40, 60, 80, 100]
+                    });
+
+                    // Initialize gauges
+                    temperatureGauge.init();
+                    humidityGauge.init();
+                    temperatureGauge.update(temperatureGauge, temperatureGauge.toFixed(2) + '°C');
+                    humidityGauge.update(humidityGauge, humidityGauge.toFixed(2) + '%');
+                } else {
+                    console.error('Invalid data received from server.');
+                }
+            });
+        });        
     </script>
 
     <script>
