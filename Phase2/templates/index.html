@@ -98,6 +98,15 @@
                     }
                 });
             });
+
+            // Handle fan button click
+            $('#fanButton').click(function () {
+                $.get('/confirm_fan', { choice: 'yes' }, function (data) {
+                    if (data.fan_state === 'on') {
+                        $('.ceiling-container').removeClass('fan-off').addClass('fan-on');
+                    }
+                });
+            });
         });
     </script>
 
@@ -146,34 +155,11 @@
                 });
             }
 
-             // Update sensor data initially
+            // Update sensor data initially
             updateSensorData();
 
             // Update sensor data every 10 seconds
             setInterval(updateSensorData, 10000);
-            });      
-    </script>
-
-    <script>
-        var fanButton = document.getElementById('fanButton');
-        var fanContainer = document.querySelector('.ceiling-container');
-
-        fanButton.addEventListener('click', function () {
-            if (fanContainer.classList.contains('fan-on')) {
-                fanContainer.classList.remove('fan-on');
-                fanContainer.classList.add('fan-off');
-            } else {
-                fanContainer.classList.remove('fan-off');
-                fanContainer.classList.add('fan-on');
-            }
-
-            $(document).ready(function () {
-                $(fanButton).click(function () {
-                    $.get('/toggle', function () {
-                    
-                    });
-                });
-            });
         });
     </script>
 

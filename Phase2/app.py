@@ -1,8 +1,8 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 import RPi.GPIO as GPIO
 from time import sleep
 import Freenove_DHT as DHT
-# email
+# Email
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -14,10 +14,8 @@ if GPIO.getmode() is None:
     GPIO.setmode(GPIO.BCM)
 
 LED = 27
-# FAN = 22
 GPIO.setup(LED, GPIO.OUT)
 light_on = False
-fan_on = False
 email_sent = False
 
 DHTPin = 17
@@ -41,15 +39,6 @@ def read_dht_sensor():
         sleep(0.1)
     return None, None
 
-def toggle_fan():
-    global fan_on
-    if not fan_on:
-        GPIO.output(FAN, GPIO.HIGH)
-        fan_on = True
-    else:
-        GPIO.output(FAN, GPIO.LOW)
-        fan_on = False
-
 @app.route('/')
 def index():
     humidity, temperature = read_dht_sensor()
@@ -64,41 +53,30 @@ def toggle():
 def sensor_data():
     global email_sent
     humidity, temperature = read_dht_sensor()
-    if temperature is not None and temperature > 22 and not email_sent:
+    if temperature is not None and temperature > 15 and not email_sent:
         send_email(temperature)
         email_sent = True
     return jsonify({'temperature': temperature, 'humidity': humidity})
-
-
-@app.route('/fan_toggle')
-def fan_toggle():
-    toggle_fan()
-    return 'fan toggle is OK'
 
 @app.route('/confirm_fan', methods=['GET'])
 def confirm_fan():
     choice = request.args.get('choice')
     if choice == 'yes':
-        fan_toggle()
-        pass
-    elif choice == 'no':
-        # Code to keep the fan off
-        pass
+        toggle_light()
+        return redirect(url_for('index'))
     return "Fan status updated successfully."
 
 def send_email(temp):
     # Email configuration
-    sender_email = "iot-master-o@outlook.com"
-    receiver_email = "iot-master-o@outlook.com"
-    password = "iot4life"
+    sender_email = "kingdaxter360@gmail.com"
+    receiver_email = "kingdaxter360@gmail.com"
+    password = "iwxy ynue zzni xkzq"
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Temperature Alert"
     message["From"] = sender_email
     message["To"] = receiver_email
 
-   
-    # Email content
     text = f"The current temperature is {temp}. Would you like to turn on the fan?"
     html = f"""\
     <html>
@@ -134,14 +112,13 @@ def send_email(temp):
             <p>The current temperature is {temp}. Would you like to turn on the fan?</p>
         </div>
         <div class="buttons">
-              <p><a href="http://127.0.0.1:5000/confirm_fan?choice=yes">Yes, turn on the fan</a></p>
-              <p><a href="http://127.0.0.1:5000/confirm_fan?choice=no">No, keep it off</a></p>
+              <p><a href="http://127.0.0.1:5000/confirm_fan?choice=yes" class="email-link">Yes, turn on the fan</a></p>
+              <p><a href="http://127.0.0.1:5000/confirm_fan?choice=no" class="email-link">No, keep it off</a></p>
         </div>
         </div>
     </body>
     </html>
     """
-
 
     part1 = MIMEText(text, "plain")
     part2 = MIMEText(html, "html")
@@ -149,9 +126,8 @@ def send_email(temp):
     message.attach(part1)
     message.attach(part2)
 
-    # Sending email
     try:
-        with smtplib.SMTP("smtp.office365.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
