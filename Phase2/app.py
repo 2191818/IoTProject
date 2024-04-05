@@ -14,14 +14,21 @@ if GPIO.getmode() is None:
     GPIO.setmode(GPIO.BCM)
 
 LED = 27
-FAN = 23
+Motor1 = 16 # Enable Pin
+Motor2 = 20 # Input Pin765
+Motor3 = 21 # Input Pin
+
 GPIO.setup(LED, GPIO.OUT)
-GPIO.setup(FAN, GPIO.OUT)
+GPIO.setup(Motor1, GPIO.OUT)
+GPIO.setup(Motor2, GPIO.OUT)
+GPIO.setup(Motor3, GPIO.OUT)
+
 light_on = False
 fan_on = False
 email_sent = False
 
 DHTPin = 17
+GPIO.setup(DHTPin, GPIO.OUT)
 
 def toggle_light():
     global light_on
@@ -35,10 +42,12 @@ def toggle_light():
 def toggle_fan():
     global fan_on
     if not fan_on:
-        GPIO.output(FAN, GPIO.HIGH)
+        GPIO.output(Motor1, GPIO.HIGH)
+        GPIO.output(Motor2, GPIO.LOW)
+        GPIO.output(Motor3, GPIO.HIGH)
         fan_on = True
     else:
-        GPIO.output(FAN, GPIO.LOW)
+        GPIO.output(Motor1, GPIO.LOW)
         fan_on = False
 
 def read_dht_sensor():
@@ -70,7 +79,7 @@ def toggle_fan_route():
 def sensor_data():
     global email_sent
     humidity, temperature = read_dht_sensor()
-    if temperature is not None and temperature > 24 and not email_sent:
+    if temperature is not None and temperature > 20 and not email_sent:
         send_email(temperature)
         email_sent = True
     return jsonify({'temperature': temperature, 'humidity': humidity})
@@ -87,14 +96,14 @@ def confirm_fan():
 def toggle_fan_on():
     global fan_on
     if not fan_on:
-        GPIO.output(FAN, GPIO.HIGH)
+        toggle_fan()
         fan_on = True
         fan_status = "on"  # Update status
 
 def toggle_fan_off():
     global fan_on
     if fan_on:
-        GPIO.output(FAN, GPIO.LOW)
+        toggle_fan()
         fan_on = False
         fan_status = "off"  # Update status
 
@@ -102,9 +111,9 @@ def toggle_fan_off():
 
 def send_email(temp):
     # Email configuration
-    sender_email = "kingdaxter360@gmail.com"
-    receiver_email = "kingdaxter360@gmail.com"
-    password = "iwxy ynue zzni xkzq"
+    sender_email = "iot-master-o@outlook.com"
+    receiver_email = "iot-master-o@outlook.com"
+    password = "iot4life"
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Temperature Alert"
@@ -161,7 +170,7 @@ def send_email(temp):
     message.attach(part2)
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.outlook.com", 587) as server:
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
