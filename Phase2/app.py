@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import RPi.GPIO as GPIO
 from time import sleep
 import Freenove_DHT as DHT
@@ -14,8 +14,11 @@ if GPIO.getmode() is None:
     GPIO.setmode(GPIO.BCM)
 
 LED = 27
+FAN = 23
 GPIO.setup(LED, GPIO.OUT)
+GPIO.setup(FAN, GPIO.OUT)
 light_on = False
+fan_on = False
 email_sent = False
 
 DHTPin = 17
@@ -28,7 +31,16 @@ def toggle_light():
     else:
         GPIO.output(LED, GPIO.LOW)
         light_on = False
-            
+
+def toggle_fan():
+    global fan_on
+    if not fan_on:
+        GPIO.output(FAN, GPIO.HIGH)
+        fan_on = True
+    else:
+        GPIO.output(FAN, GPIO.LOW)
+        fan_on = False
+
 def read_dht_sensor():
     dht = DHT.DHT(DHTPin)
     counts = 0
@@ -42,18 +54,23 @@ def read_dht_sensor():
 @app.route('/')
 def index():
     humidity, temperature = read_dht_sensor()
-    return render_template('index.html', light_status=light_on, temperature=temperature, humidity=humidity)
+    return render_template('index.html', light_status=light_on, fan_status=fan_on, temperature=temperature, humidity=humidity)
 
 @app.route('/toggle')
 def toggle():
     toggle_light()
     return 'OK'
 
+@app.route('/toggle_fan')
+def toggle_fan_route():
+    toggle_fan()
+    return 'OK'
+
 @app.route('/sensor_data')
 def sensor_data():
     global email_sent
     humidity, temperature = read_dht_sensor()
-    if temperature is not None and temperature > 15 and not email_sent:
+    if temperature is not None and temperature > 24 and not email_sent:
         send_email(temperature)
         email_sent = True
     return jsonify({'temperature': temperature, 'humidity': humidity})
@@ -62,9 +79,26 @@ def sensor_data():
 def confirm_fan():
     choice = request.args.get('choice')
     if choice == 'yes':
-        toggle_light()
-        return redirect(url_for('index'))
-    return "Fan status updated successfully."
+        toggle_fan_on()
+    elif choice == 'no':
+        toggle_fan_off()
+    return redirect(url_for('index'))
+
+def toggle_fan_on():
+    global fan_on
+    if not fan_on:
+        GPIO.output(FAN, GPIO.HIGH)
+        fan_on = True
+        fan_status = "on"  # Update status
+
+def toggle_fan_off():
+    global fan_on
+    if fan_on:
+        GPIO.output(FAN, GPIO.LOW)
+        fan_on = False
+        fan_status = "off"  # Update status
+
+
 
 def send_email(temp):
     # Email configuration

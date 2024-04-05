@@ -5,15 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IoT Dashboard</title>
-    <!-- Link to Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Link to Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <!-- Link to external stylesheets -->
     <link rel="stylesheet" href="../static/styles/dashboard.css">
     <link rel="stylesheet" href="../static/styles/fan.css">
-
-    <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
@@ -22,14 +17,11 @@
         IoT Dashboard
     </header>
 
-
     <div class="dashboard-container">
-
         <div class="card-container" style="margin-top: 100px">
             <div class="container">
                 <h4><b>Phase 1: LED Control</b></h4>
             </div>
-            <!-- Lightbulb icon for on/off -->
             <label class="toggle-button">
                 Toggle Light
                 <input id="toggle_button" type="checkbox">
@@ -38,25 +30,22 @@
         </div>
 
         <div class="row-container">
-
-            <!-- Fan Widget -->
             <div class="card-container">
-                <div class="ceiling-container fan-off">
+                <div class="ceiling-container fan-{{ 'on' if fan_status else 'off' }}">
                     <div class="ceiling-fan horizontal left"></div>
                     <div class="ceiling-fan horizontal right"></div>
                     <div class="ceiling-fan vertical rotated top"></div>
                     <div class="ceiling-fan vertical rotated bottom"></div>
                 </div>
-
-                <button id="fanButton"> Turn On/Off</button>
+                <button id="fanButton">Turn On/Off</button>
+                <div id="fanStatus">Fan Status: {{ fan_status }}</div> <!-- Fan status -->
             </div>
 
-            <!-- Temperature Gauge -->
             <div class="card-container" style="padding:35px">
                 <h4><b>Temperature</b></h4>
                 <div class="gauge temperature-gauge"></div>
             </div>
-            <!-- Humidity Gauge -->
+
             <div class="card-container" style="padding:35px">
                 <h4><b>Humidity</b></h4>
                 <div class="gauge humidity-gauge"></div>
@@ -64,7 +53,6 @@
         </div>
     </div>
 
-    <!-- Define gradient within the HTML -->
     <svg width="0" height="0" version="1.1" class="gradient-mask" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <linearGradient id="gradientGauge">
@@ -77,20 +65,19 @@
         </defs>
     </svg>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn3.devexpress.com/jslib/17.1.6/js/dx.all.js"></script>
+    <script src="../static/scripts/gauge.js"></script>
+
     <script>
         $(document).ready(function () {
             $('#toggle_button').click(function () {
                 $.get('/toggle', function () {
-                    // Update the background gradient and text color based on the light status
                     if ($('#toggle_button').prop('checked')) {
-                        // Light is on
                         $('body').css({
                             'background': 'linear-gradient(90deg, #a1c4fd, #c2e9fb)',
                             'color': 'black'
                         });
                     } else {
-                        // Light is off
                         $('body').css({
                             'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
                             'color': 'white'
@@ -98,35 +85,29 @@
                     }
                 });
             });
-
-            // Handle fan button click
+    
             $('#fanButton').click(function () {
-                $.get('/confirm_fan', { choice: 'yes' }, function (data) {
-                    if (data.fan_state === 'on') {
-                        $('.ceiling-container').removeClass('fan-off').addClass('fan-on');
+                $.get('/toggle_fan', function () {
+                    var fanContainer = $('.ceiling-container');
+                    var fanStatus = $('#fanStatus');
+                    if (fanContainer.hasClass('fan-off')) {
+                        fanContainer.removeClass('fan-off').addClass('fan-on');
+                        fanStatus.text('Fan Status: On');
+                    } else {
+                        fanContainer.removeClass('fan-on').addClass('fan-off');
+                        fanStatus.text('Fan Status: Off');
                     }
                 });
             });
         });
-    </script>
-
-    <!-- DevExpress library -->
-    <script src="https://cdn3.devexpress.com/jslib/17.1.6/js/dx.all.js"></script>
-    <!-- Custom gauge script -->
-    <script src="../static/scripts/gauge.js"></script>
-
-
-    <script>
+    
         $(document).ready(function () {
             let temperatureGauge;
             let humidityGauge;
-
+    
             function updateSensorData() {
-                // Fetch the temperature and humidity values from Flask endpoint
                 $.get('/sensor_data', function (data) {
-                    // Check if data is received and contains temperature and humidity fields
                     if ('temperature' in data && 'humidity' in data) {
-                        // Initialize Temperature Gauge
                         temperatureGauge = new GaugeChart('.temperature-gauge', {
                             initialValue: data.temperature,
                             higherValue: 60,
@@ -134,8 +115,7 @@
                             subtitle: data.temperature.toFixed(2) + '°C',
                             customTicks: [0, 10, 20, 30, 40, 50, 60]
                         });
-
-                        // Initialize Humidity Gauge
+    
                         humidityGauge = new GaugeChart('.humidity-gauge', {
                             initialValue: data.humidity,
                             higherValue: 100,
@@ -143,8 +123,7 @@
                             subtitle: data.humidity.toFixed(2) + '%',
                             customTicks: [0, 20, 40, 60, 80, 100]
                         });
-
-                        // Initialize gauges
+    
                         temperatureGauge.init();
                         humidityGauge.init();
                         temperatureGauge.update(temperatureGauge, temperatureGauge.toFixed(2) + '°C');
@@ -154,11 +133,8 @@
                     }
                 });
             }
-
-            // Update sensor data initially
+    
             updateSensorData();
-
-            // Update sensor data every 10 seconds
             setInterval(updateSensorData, 10000);
         });
     </script>
@@ -166,7 +142,6 @@
     <footer>
         &copy; 2024 - Muhammad Arsalan Saeed, Nabil Ramadan & Hibba Qaraman.
     </footer>
-
 
 </body>
 
