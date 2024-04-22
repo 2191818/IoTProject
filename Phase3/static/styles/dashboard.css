@@ -1,0 +1,205 @@
+/* Header styling */
+header {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #333;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Body styling */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: linear-gradient(90deg, #2C3E50, #34495E);
+    color: white;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Toggle button */
+.toggle-button {
+    background-color: #333;
+    border: 2px solid #ccc;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.toggle-button:hover {
+    background-color: #555;
+}
+
+/* Toggle switch */
+.toggle-button input {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    background-color: #666;
+    border-radius: 34px;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "\f0eb"; /* Lightbulb icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 18px;
+    top: 6px;
+    left: 6px;
+    color: #fff; /* White color when on */
+    transition: transform 0.3s;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+    color: #f1c40f; /* Yellow color when on */
+}
+
+/* Card styling */
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    width: 40%;
+    margin: 20px;
+    text-align: center;
+    background-color: #e0e5ec;
+    color: black;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.card .container {
+    padding: 2px 16px;
+}
+
+/* Footer styling */
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Dashboard container */
+.dashboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Container */
+.container {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.row-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.card-container {
+    flex: 1; 
+    padding: 20px;
+    margin: 20px;
+    display: flex;
+    justify-content: space-around;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    text-align: center;
+    background-color: #17263c;
+    color: white;
+    border-radius: 20px;
+}
+
+.gauge {
+    height: 220px;
+    width: 300px;
+}
+
+.gauge .dxg-range.dxg-background-range {
+    fill: url(#gradientGauge);
+}
+
+.gauge .dxg-line {
+    transform: scaleX(1.04) scaleY(1.03) translate(-4px, -4px);
+}
+
+.gauge .dxg-line path:first-child,
+.gauge .dxg-line path:last-child {
+    display: none;
+}
+
+.gauge .dxg-line path:nth-child(2),
+.gauge .dxg-line path:nth-child(6) {
+    stroke: #ed811c;
+}
+
+.gauge .dxg-line path:nth-child(3),
+.gauge .dxg-line path:nth-child(5) {
+    stroke: #a7db29;
+}
+
+.gauge .dxg-line path:nth-child(4) {
+    stroke: #25cd6b;
+}
+
+.gauge .dxg-elements text:first-child {
+    transform: translate(19px, 13px);
+}
+
+.gauge .dxg-elements text:last-child {
+    transform: translate(-27px, 14px);
+}
+
+.gauge .dxg-value-indicator path {
+    transform: scale(1.2) translate(0, -5px);
+    transform-origin: center center;
+}
+
+.gauge .dxg-value-indicator .dxg-title {
+    text-transform: uppercase;
+}
+
+.gauge .dxg-value-indicator .dxg-title text:first-child {
+    transform: translateY(5px);
+}
+
+.gauge .dxg-value-indicator .dxg-spindle-border:nth-child(4),
+.gauge .dxg-value-indicator .dxg-spindle-hole:nth-child(5) {
+    transform: translate(0, -109px);
+}
+
+.gauge .dxg-value-indicator .dxg-spindle-hole {
+    fill: #26323a;
+}
+
