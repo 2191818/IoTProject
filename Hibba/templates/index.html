@@ -9,17 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="../static/styles/dashboard.css">
-    <link rel="stylesheet" href="../static/styles/gauge.css">
-    <link rel="stylesheet" href="../static/styles/fan.css">
-    <link rel="stylesheet" href="../static/styles/light.css">
-   
-    <script src="https://cdn3.devexpress.com/jslib/17.1.6/js/dx.all.js"></script>
-
-     <!-- Custom Scripts -->
-    <script src="../static/scripts/gauge.js"></script>
+    <!-- Custom Scripts -->
     <script src="../static/scripts/clock.js"></script>
-    <script src="../static/scripts/light.js"></script>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
@@ -33,9 +24,9 @@
             <div class="container">
                 <h4><b>Under construction</b></h4>
             </div>
-            <label class="toggle-button">
+            <label class="toggle-button2">
                 Toggle Light
-                <input id="toggle_button" type="checkbox">
+                <input id="toggle_button2" type="checkbox">
                 <span class="toggle-slider round"></span>
             </label>
         </div>
@@ -47,19 +38,16 @@
                 </div>
                 <h4><b>User Profile</b></h4>
                 <img src="../static/images/avatar.jpg" alt="Avatar" class="avatar">
-                <b>User ID: {{ user id }}</b>
+                <b>User ID: {{ user }}</b>
                 <b>Name: {{ name }}</b>
                 <div class="input-container">
                     <label for="temperature">Temperature Threshold:</label>
-                    <input type="number" id="temperature" name="temperature" value="{{ temp }}" min="0" max="100">
                 </div>
                 <div class="input-container">
                     <label for="humidity">Humidity Threshold:</label>
-                    <input type="number" id="humidity" name="humidity" value="{{ humidity }}" min="0" max="100">
                 </div>
                 <div class="input-container">
                     <label for="light-intensity">Light Intensity Threshold:</label>
-                    <input type="number" id="light-intensity" name="light-intensity" value="{{ light }}" min="0" max="1000">
                 </div>
             </div>
             <table>
@@ -84,7 +72,7 @@
                             <div class="frame center" style="margin: 50px;">
                                 <div class="slider-container">
                                     <div class="slider center">
-                                        <input class="center" type="range" min="0" max="1000"/>
+                                        <input class="center" type="range" min="0" max="1000" />
                                     </div>
                                     <div class="slider-value center">500</div>
                                 </div>
@@ -114,7 +102,7 @@
                             <div class="gauge humidity-gauge"></div>
                         </div>
                     </td>
-                </tr>    
+                </tr>
             </table>
         </div>
     </div>
@@ -131,24 +119,34 @@
         </defs>
     </svg>
 
+    <script src="https://cdn3.devexpress.com/jslib/17.1.6/js/dx.all.js"></script>
+    <script src="../static/scripts/gauge.js"></script>
+
     <script>
         $(document).ready(function () {
             $('#toggle_button').click(function () {
                 $.get('/toggle', function () {
-                    if ($('#toggle_button').prop('checked')) {
+                    $('body').toggleClass('on');
+                    if ($('body').hasClass('on')) {
+                        // If body has class 'on' (light is on), change background to light theme
                         $('body').css({
                             'background': 'linear-gradient(90deg, #a1c4fd, #c2e9fb)',
                             'color': 'black'
                         });
+                        // Turn on the light bulb
+                        $('.bulb').addClass('on');
                     } else {
+                        // If body doesn't have class 'on' (light is off), change background to dark theme
                         $('body').css({
                             'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
                             'color': 'white'
                         });
+                        // Turn off the light bulb
+                        $('.bulb').removeClass('on');
                     }
                 });
             });
-
+            
             $('#fanButton').click(function () {
                 $.get('/toggle_fan', function () {
                     var fanContainer = $('.ceiling-container');
@@ -209,5 +207,3 @@
 </body>
 
 </html>
-
-

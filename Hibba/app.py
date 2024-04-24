@@ -180,3 +180,25 @@ def send_email(temp):
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+
+from gpiozero import LightSensor, LED
+
+pResistor = 22  # GPIO pin 22
+
+ldr = LightSensor(pResistor)
+led = LED(27)  # GPIO pin 2 for LED
+
+try:
+    while True:
+        value = ldr.value
+        print("Light intensity is: {:.2f}".format(value))  # Print with two decimal places
+        if value < 0.5:  # Adjust threshold as needed
+            led.on()  # Turn on the LED
+            print("Dark")
+        else:
+            led.off()  # Turn off the LED
+            print("Light")
+        time.sleep(1)
+except KeyboardInterrupt:
+    pass
+
