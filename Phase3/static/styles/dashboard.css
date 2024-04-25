@@ -8,8 +8,6 @@ header {
     font-weight: bold;
     width: 100%;
     position: fixed;
-    top: 0;
-    z-index: 1000;
 }
 
 /* Body styling */
@@ -17,7 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    min-height: 100%;
     margin: 0;
     background: linear-gradient(90deg, #2C3E50, #34495E);
     color: white;
@@ -111,6 +109,7 @@ footer {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 /* Container */
@@ -140,6 +139,53 @@ footer {
     color: white;
     border-radius: 20px;
 }
+
+.avatar {
+    vertical-align: middle;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 20px;
+}
+
+.card-container.profile {
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+}
+
+.card-container.inline {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+}
+
+.top-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-container {
+    margin-bottom: 10px;
+}
+
+.input-container label {
+    display: inline-block;
+    width: 200px;
+}
+
+.input-container input {
+    width: 100px;
+}
+
+/* gauge.css */
 
 .gauge {
     height: 220px;
@@ -203,3 +249,277 @@ footer {
     fill: #26323a;
 }
 
+
+td {
+    width: 50%; 
+    height: 50%; 
+}
+
+/* fan.css */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.ceiling-container {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    position: relative;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+.ceiling-container:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    margin-left: -35px;
+    margin-top: -35px;
+    background: #444;
+    box-shadow: inset 0 0px 0px 8px #444, inset 0 1px 5px 22px #383838;
+}
+
+.ceiling-fan {
+    display: block;
+    background: #ccc;
+    border-radius: 5px;
+    position: absolute;
+    box-shadow: inset 1px 1px 40px #555;
+}
+
+.ceiling-fan:after {
+    content: "";
+    position: absolute;
+    background: #666;
+    display: block;
+}
+
+.ceiling-fan.horizontal {
+    width: auto;
+    height: 50px;
+    top: 50%;
+    margin-top: -25px;
+    transform: skewX(20deg);
+}
+
+.ceiling-fan.horizontal:after {
+    top: 25%;
+    width: 15px;
+    height: 50%;
+}
+
+.ceiling-fan.vertical {
+    width: 50px;
+    height: auto;
+    left: 50%;
+    margin-left: -25px;
+    transform: skewY(20deg);
+}
+
+.ceiling-fan.vertical:after {
+    height: 15px;
+    width: 50%;
+    margin-left: 25%;
+}
+
+.ceiling-fan.left {
+    left: 0;
+    right: 50%;
+    margin-right: 45px;
+    border-radius: 50% 15px 15px 50%;
+}
+
+.ceiling-fan.left:after {
+    left: 100%;
+}
+
+.ceiling-fan.right {
+    right: 0;
+    left: 50%;
+    margin-left: 45px;
+    border-radius: 15px 50% 50% 15px;
+}
+
+.ceiling-fan.right:after {
+    right: 100%;
+}
+
+.ceiling-fan.top {
+    top: 0;
+    bottom: 50%;
+    margin-bottom: 45px;
+    border-radius: 50% 50% 15px 15px;
+}
+
+.ceiling-fan.top:after {
+    top: 100%;
+}
+
+.ceiling-fan.bottom {
+    top: 50%;
+    bottom: 0;
+    margin-top: 45px;
+    border-radius: 15px 15px 50% 50%;
+}
+
+.ceiling-fan.bottom:after {
+    bottom: 100%;
+}
+
+.fan-on {
+    animation-play-state: running !important;
+}
+
+.fan-off {
+    animation-play-state: paused !important;
+}
+
+#fanButton {
+    background-color: rgb(17, 17, 86);
+    cursor: pointer;
+    font-size: 14px;
+    height: 25%;
+
+}
+
+#fanButton:hover {
+    background-color: rgb(17, 167, 62);
+    font-size: 14px;
+    height: 25%;
+}
+
+/* light_bulb_and_intensity.css*/
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:700,300);
+
+.frame {
+  background: #333;
+  height: 200px;
+  width: 150px;
+  border-radius: 2%;
+  box-shadow: 4px 8px 16px 0 rgba(black, 0.1);
+  font-family: 'Open Sans', Helvetica, sans-serif;
+
+  }
+  .slider-value {
+    padding-bottom: 120px;
+    user-select: none;
+    color:#fff;
+    font-size: 60px;
+  }
+
+
+.center {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: contents;
+}
+
+.slider-container,
+.wrapper {
+    position: relative;
+}
+
+.bulb {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background: #666;
+    border-radius: 50%;
+    transform: rotate(180deg);
+    margin: -50px auto 0;
+}
+
+body.on .bulb {
+    background: #fff;
+    box-shadow: 0 0 30px #fff,
+    0 0 60px #fff,
+    0 0 90px #fff,
+    0 0 120px #fff;
+}
+
+.bulb::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 22.5px;
+    width: 35px;
+    height: 80px;
+    background: #666;
+    border-top: 30px solid #000;
+    border-radius: 10px;
+}
+
+body.on .bulb::before {
+    background: #fff;
+}
+
+body.on .bulb::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: #fff;
+    border-radius: 50%;
+    filter: blur(40px);
+}
+
+.bulb span:nth-child(1),
+.bulb span:nth-child(2) {
+    position: absolute;
+    display: block;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+}
+
+.bulb span:nth-child(1) {
+    top: -16px;
+    left: -4px;
+    transform: rotate(342deg);
+    border-bottom-right-radius: 40px;
+    box-shadow: 20px 20px 0 10px #666;
+}
+
+.bulb span:nth-child(2) {
+    top: -16px;
+    right: -4px;
+    transform: rotate(17deg);
+    border-bottom-left-radius: 40px;
+    box-shadow: -20px 20px 0 10px #666;
+}
+
+body.on .bulb span:nth-child(1) {
+    box-shadow: 20px 20px 0 10px #fff;
+}
+
+body.on .bulb span:nth-child(2) {
+    box-shadow: -20px 20px 0 10px #fff;
+}
+
+.btn {
+    display: block;
+    position: relative;
+    bottom: -80px;
+    margin: auto;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 75px;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #000;
+}
