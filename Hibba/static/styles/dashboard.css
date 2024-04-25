@@ -521,4 +521,5 @@ body.on .bulb span:nth-child(2) {
     border-radius: 75px;
     padding: 10px 20px;
     cursor: pointer;
+    color: #000;
 }

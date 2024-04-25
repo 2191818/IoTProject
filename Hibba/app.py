@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 
 # MQTT configuration
-mqtt_broker = "192.168.2.32"  # wifi at home
+mqtt_broker = "192.168.2.24"  # wifi at home
 # mqtt_broker = "192.168.0.102"
 mqtt_port = 1883
 mqtt_topic = "light_intensity"
@@ -22,8 +22,11 @@ mqtt_client = mqtt.Client()
 
 # Callback function to handle MQTT messages
 def on_message(client, userdata, message):
-    global light_intensity
+    global light_intensity, email_sent
     light_intensity = int(message.payload.decode())
+    if light_intensity < 400 and not email_sent:
+        send_light_notification()
+        email_sent = True
 
 # Set MQTT client callbacks
 mqtt_client.on_message = on_message
@@ -167,7 +170,7 @@ def send_light_notification():
     message = MIMEMultipart()
     message["From"] = sender_email
     message["To"] = receiver_email
-    message["Subject"] = "Light is ON"
+    message["Subject"] = "Light Alert"
 
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M")
@@ -207,9 +210,12 @@ def toggle_fan_route():
 def sensor_data():
     global email_sent
     humidity, temperature = read_dht_sensor()
-    if temperature is not None and temperature > 20 and not email_sent:
-        send_email_notification(temperature)
-        email_sent = True
+    if temperature is not None and temperature > 20:
+        # Reset email_sent flag when page is refreshed
+        email_sent = False
+        if light_intensity < 400 and not email_sent:
+            send_email_notification(temperature)
+            email_sent = True
     return jsonify({'temperature': temperature, 'humidity': humidity})
 
 @app.route('/confirm_fan', methods=['GET'])
