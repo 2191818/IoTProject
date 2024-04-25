@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # MQTT configuration
 # mqtt_broker = "192.168.2.24"  # wifi at home
-mqtt_broker = "192.168.0.102"
+mqtt_broker = "192.168.2.0"
 mqtt_port = 1883
 mqtt_topic = "light_intensity"
 light_intensity = 0

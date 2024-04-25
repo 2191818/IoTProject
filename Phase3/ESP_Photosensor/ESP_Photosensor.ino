@@ -7,9 +7,9 @@ const char* password = "14730078";
 const char* mqtt_server = "192.168.0.102";
 
 /*
-const char* ssid = "LHE786";
-const char* password = "aida2432";
-const char* mqtt_server = "192.168.2.24";
+const char* ssid = "";
+const char* password = "";
+const char* mqtt_server = "192.168.2.0";
 */
 
 WiFiClient espClient;
