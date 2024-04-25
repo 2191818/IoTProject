@@ -24,11 +24,6 @@
             <div class="container">
                 <h4><b>Under construction</b></h4>
             </div>
-            <label class="toggle-button2">
-                Toggle Light
-                <input id="toggle_button2" type="checkbox">
-                <span class="toggle-slider round"></span>
-            </label>
         </div>
 
         <div class="row-container">
@@ -74,7 +69,10 @@
                                     <div class="slider center">
                                         <input class="center" type="range" min="0" max="1000" />
                                     </div>
-                                    <div class="slider-value center">500</div>
+                                    <div class="slider-value center">{{ light_intensity }}</div>
+                                    <p class="light-status">Light Status: {% if light_status %}ON{% else %}OFF{% endif
+                                        %}</p>
+                                    <p>{{ email_status }}</p>
                                 </div>
                                 <div class="wrapper" style="margin: 50px;">
                                     <div class="light">
@@ -126,9 +124,20 @@
         $(document).ready(function () {
             $('#toggle_button').click(function () {
                 $.get('/toggle', function () {
+                    
+                    $('.bulb').toggleClass('on');
+
+                    var lightStatus = $('.light-status');
+                    if ($('.bulb').hasClass('on')) {
+                        lightStatus.text('Light Status: ON');
+                    } else {
+                        lightStatus.text('Light Status: OFF');
+                    }
+
+                 
                     $('body').toggleClass('on');
+
                     if ($('body').hasClass('on')) {
-                        // If body has class 'on' (light is on), change background to light theme
                         $('body').css({
                             'background': 'linear-gradient(90deg, #a1c4fd, #c2e9fb)',
                             'color': 'black'
@@ -136,7 +145,6 @@
                         // Turn on the light bulb
                         $('.bulb').addClass('on');
                     } else {
-                        // If body doesn't have class 'on' (light is off), change background to dark theme
                         $('body').css({
                             'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
                             'color': 'white'
@@ -146,7 +154,24 @@
                     }
                 });
             });
-            
+
+
+            // Event listener for the fan toggle button
+            $('#fanButton').click(function () {
+                $.get('/toggle_fan', function () {
+                    // Toggle the 'on' class on the fan button
+                    var fanButton = $('#fanButton');
+                    if (fanButton.hasClass('on')) {
+                        fanButton.removeClass('on').text('Turn On');
+                    } else {
+                        fanButton.addClass('on').text('Turn Off');
+                    }
+                });
+            });
+
+
+
+
             $('#fanButton').click(function () {
                 $.get('/toggle_fan', function () {
                     var fanContainer = $('.ceiling-container');
