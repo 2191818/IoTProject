@@ -2,15 +2,21 @@
 #include <PubSubClient.h>
 
 
-const char* ssid = "TP-Link_2AD8";
-const char* password = "14730078";
-const char* mqtt_server = "192.168.0.102";
+// const char* ssid = "TP-Link_2AD8";
+// const char* password = "14730078";
+// const char* mqtt_server = "192.168.0.102";
 
+<<<<<<< Updated upstream
 /*
 const char* ssid = "";
 const char* password = "";
 const char* mqtt_server = "192.168.2.0";
 */
+=======
+const char* ssid = "LHE786";
+const char* password = "aida2432";
+const char* mqtt_server = "192.168.2.24";
+>>>>>>> Stashed changes
 
 WiFiClient espClient;
 PubSubClient client(espClient);

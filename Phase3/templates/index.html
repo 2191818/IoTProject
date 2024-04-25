@@ -70,7 +70,7 @@
                                         <input class="center" type="range" min="0" max="1000" />
                                     </div>
                                     <div class="slider-value center">{{ light_intensity }}</div>
-                                    <p class="light-status">Light Status: {% if light_status %}ON{% else %}OFF{% endif
+                                    <p class="light-status">Status: {% if light_status %}ON{% else %}OFF{% endif
                                         %}</p>
                                     <p>{{ email_status }}</p>
                                 </div>
@@ -224,6 +224,28 @@
             setInterval(updateSensorData, 10000);
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+            function updateLightIntensity() {
+                $.get('/light_intensity', function (data) {
+                    $('.slider-value').text(data.light_intensity);
+                    if (data.light_status === 'ON') {
+                        $('.light-status').text('Status: ON');
+                        $('.bulb').addClass('on');
+                    } else {
+                        $('.light-status').text('Status: OFF');
+                        $('.bulb').removeClass('on');
+                    }
+                });
+            }
+    
+            updateLightIntensity(); // Initial call
+    
+            setInterval(updateLightIntensity, 5000); // Update every 5 seconds
+        });
+    </script>
+    
 
     <footer>
         &copy; 2024 - Muhammad Arsalan Saeed, Nabil Ramadan & Hibba Qaraman.

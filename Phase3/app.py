@@ -12,7 +12,8 @@ app = Flask(__name__)
 
 # MQTT configuration
 # mqtt_broker = "192.168.2.24"  # wifi at home
-mqtt_broker = "192.168.2.0"
+mqtt_broker = "192.168.2.24"  # wifi at home
+# mqtt_broker = "192.168.0.102"
 mqtt_port = 1883
 mqtt_topic = "light_intensity"
 light_intensity = 0
@@ -22,11 +23,16 @@ mqtt_client = mqtt.Client()
 
 # Callback function to handle MQTT messages
 def on_message(client, userdata, message):
-    global light_intensity, email_sent
+    global light_intensity, email_sent, light_on
     light_intensity = int(message.payload.decode())
     if light_intensity < 400 and not email_sent:
         send_light_notification()
         email_sent = True
+        GPIO.output(LED, GPIO.HIGH)  # Turn on LED
+        light_on = True
+    elif light_intensity >= 400:
+        GPIO.output(LED, GPIO.LOW)   # Turn off LED
+        light_on = False
 
 # Set MQTT client callbacks
 mqtt_client.on_message = on_message
@@ -62,7 +68,6 @@ def toggle_light():
         GPIO.output(LED, GPIO.HIGH)
         light_on = True
         light_status = "on"
-        send_light_notification()  
     else:
         GPIO.output(LED, GPIO.LOW)
         light_on = False
@@ -210,13 +215,17 @@ def toggle_fan_route():
 def sensor_data():
     global email_sent
     humidity, temperature = read_dht_sensor()
-    if temperature is not None and temperature > 20:
+    if temperature is not None and temperature > 15:
         # Reset email_sent flag when page is refreshed
         email_sent = False
         if light_intensity < 400 and not email_sent:
             send_email_notification(temperature)
             email_sent = True
     return jsonify({'temperature': temperature, 'humidity': humidity})
+
+@app.route('/light_intensity')
+def light_intensity():
+    return jsonify({'light_intensity': light_intensity, 'light_status': 'ON' if light_on else 'OFF'})
 
 @app.route('/confirm_fan', methods=['GET'])
 def confirm_fan():
