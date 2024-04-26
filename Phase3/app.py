@@ -223,7 +223,8 @@ def sensor_data():
 
 @app.route('/light_intensity')
 def light_intensity():
-    return jsonify({'light_intensity': light_intensity, 'light_status': 'ON' if light_on else 'OFF'})
+    return jsonify({'light_intensity': light_intensity, 'light_status': 'ON' if light_on else 'OFF', 'email_status': 'SENT' if email_sent else 'NOT SENT'})
+
 
 @app.route('/confirm_fan', methods=['GET'])
 def confirm_fan():
