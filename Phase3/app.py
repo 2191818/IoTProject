@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 
 # MQTT configuration
-mqtt_broker = "192.168.2.24"  # wifi at home
+mqtt_broker = "192.168.2.91"  # wifi at home
 # mqtt_broker = "192.168.0.102"
 mqtt_port = 1883
 mqtt_topic = "light_intensity"
@@ -23,15 +23,21 @@ mqtt_client = mqtt.Client()
 # Callback function to handle MQTT messages
 def on_message(client, userdata, message):
     global light_intensity, email_sent, light_on
-    light_intensity = int(message.payload.decode())
+    try:
+        light_intensity = int(message.payload.decode())
+    except ValueError:
+        print("Error: Invalid MQTT message payload")
+        return
+
     if light_intensity < 400 and not email_sent:
         send_light_notification()
         email_sent = True
         GPIO.output(LED, GPIO.HIGH)  # Turn on LED
         light_on = True
     elif light_intensity >= 400:
-        GPIO.output(LED, GPIO.LOW)   # Turn off LED
+        GPIO.output(LED, GPIO.LOW)  # Turn off LED
         light_on = False
+
 
 # Set MQTT client callbacks
 mqtt_client.on_message = on_message
