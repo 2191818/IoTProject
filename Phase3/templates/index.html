@@ -22,8 +22,13 @@
     <div class="dashboard-container">
         <div class="card-container" style="margin-top: 100px;">
             <div class="container">
-                <h4><b>Under construction</b></h4>
+                <h4><b>Phase 1: LED Control</b></h4>
             </div>
+            <label class="toggle-button">
+                Toggle Light
+                <input id="toggle_button" type="checkbox">
+                <span class="toggle-slider round"></span>
+            </label>
         </div>
 
         <div class="row-container">
@@ -56,7 +61,7 @@
                                 <div class="ceiling-fan vertical rotated bottom"></div>
                             </div>
                             <button id="fanButton">Turn On/Off</button>
-                            <div id="fanStatus">Fan Status: {{ fan_status }}</div> <!-- Fan status -->
+                            <div id="fanStatus">Status: {{ fan_status }}</div> <!-- Fan status -->
                         </div>
                     </td>
                     <td>
@@ -80,7 +85,6 @@
                                             <span></span>
                                             <span></span>
                                         </div>
-                                        <button type="button" class="btn" id="toggle_button">Switch</button>
                                     </div>
                                 </div>
                             </div>
@@ -126,31 +130,28 @@
                 $.get('/toggle', function () {
                     
                     $('.bulb').toggleClass('on');
-
+        
                     var lightStatus = $('.light-status');
                     if ($('.bulb').hasClass('on')) {
-                        lightStatus.text('Light Status: ON');
+                        lightStatus.text('Status: ON');
+                        $('.bulb span').addClass('on');
                     } else {
-                        lightStatus.text('Light Status: OFF');
+                        lightStatus.text('Status: OFF');
+                        $('.bulb span').removeClass('on');
                     }
-
-                 
+        
                     $('body').toggleClass('on');
-
+        
                     if ($('body').hasClass('on')) {
                         $('body').css({
                             'background': 'linear-gradient(90deg, #a1c4fd, #c2e9fb)',
                             'color': 'black'
                         });
-                        // Turn on the light bulb
-                        $('.bulb').addClass('on');
                     } else {
                         $('body').css({
                             'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
                             'color': 'white'
                         });
-                        // Turn off the light bulb
-                        $('.bulb').removeClass('on');
                     }
                 });
             });

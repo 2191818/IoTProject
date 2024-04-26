@@ -11,7 +11,6 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 
 # MQTT configuration
-# mqtt_broker = "192.168.2.24"  # wifi at home
 mqtt_broker = "192.168.2.24"  # wifi at home
 # mqtt_broker = "192.168.0.102"
 mqtt_port = 1883
@@ -45,11 +44,13 @@ if GPIO.getmode() is None:
     GPIO.setmode(GPIO.BCM)
 
 LED = 27
+LED2 = 5
 Motor1 = 16  # Enable Pin
 Motor2 = 20  # Input Pin765
 Motor3 = 21  # Input Pin
 
 GPIO.setup(LED, GPIO.OUT)
+GPIO.setup(LED2, GPIO.OUT)
 GPIO.setup(Motor1, GPIO.OUT)
 GPIO.setup(Motor2, GPIO.OUT)
 GPIO.setup(Motor3, GPIO.OUT)
@@ -65,14 +66,11 @@ GPIO.setup(DHTPin, GPIO.OUT)
 def toggle_light():
     global light_on
     if not light_on:
-        GPIO.output(LED, GPIO.HIGH)
+        GPIO.output(LED2, GPIO.HIGH)
         light_on = True
-        light_status = "on"
     else:
-        GPIO.output(LED, GPIO.LOW)
+        GPIO.output(LED2, GPIO.LOW)
         light_on = False
-        light_status = "off"
-        
 
 # Function to toggle the fan
 def toggle_fan():
