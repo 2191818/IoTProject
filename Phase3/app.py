@@ -8,19 +8,45 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# Initialize Flask app
 app = Flask(__name__)
 
+# Initialize GPIO
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+
+# Define GPIO pins
+DHTPin = 17
+LED = 27
+LED2 = 5
+Motor1 = 16
+Motor2 = 20
+Motor3 = 21
+
+# Setup GPIO pins
+GPIO.setup(DHTPin, GPIO.OUT)
+GPIO.setup(LED, GPIO.OUT)
+GPIO.setup(LED2, GPIO.OUT)
+GPIO.setup(Motor1, GPIO.OUT)
+GPIO.setup(Motor2, GPIO.OUT)
+GPIO.setup(Motor3, GPIO.OUT)
+
+# Initialize variables
+light_on = False
+light_on2 = False
+fan_on = False
+email_sent = False
+light_intensity = 0
+
 # MQTT configuration
-mqtt_broker = "192.168.2.91"  # wifi at home
-# mqtt_broker = "192.168.0.102"
+mqtt_broker = "192.168.2.32"
 mqtt_port = 1883
 mqtt_topic = "light_intensity"
-light_intensity = 0
 
 # Initialize MQTT client
 mqtt_client = mqtt.Client()
 
-# Callback function to handle MQTT messages
+# MQTT message callback
 def on_message(client, userdata, message):
     global light_intensity, email_sent, light_on
     try:
@@ -32,51 +58,28 @@ def on_message(client, userdata, message):
     if light_intensity < 400 and not email_sent:
         send_light_notification()
         email_sent = True
-        GPIO.output(LED, GPIO.HIGH)  # Turn on LED
+        GPIO.output(LED, GPIO.HIGH)
         light_on = True
     elif light_intensity >= 400:
-        GPIO.output(LED, GPIO.LOW)  # Turn off LED
+        GPIO.output(LED, GPIO.LOW)
         light_on = False
 
-
-# Set MQTT client callbacks
+# Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
 mqtt_client.connect(mqtt_broker, mqtt_port)
 mqtt_client.subscribe(mqtt_topic)
 mqtt_client.loop_start()
 
-if GPIO.getmode() is None:
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
-
-LED = 27
-LED2 = 5
-Motor1 = 16  # Enable Pin
-Motor2 = 20  # Input Pin765
-Motor3 = 21  # Input Pin
-
-GPIO.setup(LED, GPIO.OUT)
-GPIO.setup(LED2, GPIO.OUT)
-GPIO.setup(Motor1, GPIO.OUT)
-GPIO.setup(Motor2, GPIO.OUT)
-GPIO.setup(Motor3, GPIO.OUT)
-
-light_on = False
-fan_on = False
-email_sent = False
-
-DHTPin = 17
-GPIO.setup(DHTPin, GPIO.OUT)
-
 # Function to toggle the light
 def toggle_light():
-    global light_on
-    if not light_on:
+    global light_on2
+    if not light_on2:
         GPIO.output(LED2, GPIO.HIGH)
-        light_on = True
+        light_on2 = True
     else:
         GPIO.output(LED2, GPIO.LOW)
-        light_on = False
+        light_on2 = False
+
 
 # Function to toggle the fan
 def toggle_fan():
@@ -203,32 +206,56 @@ def send_light_notification():
 def index():
     humidity, temperature = read_dht_sensor()
     email_status = "Email has been sent" if email_sent else None
-    return render_template('index.html', light_status=light_on, fan_status=fan_on, temperature=temperature, humidity=humidity, light_intensity=light_intensity, email_status=email_status)
-
-@app.route('/toggle')
-def toggle():
-    toggle_light()
-    return 'OK'
+    return render_template('index.html', light_status2=light_on2, fan_status=fan_on, temperature=temperature, humidity=humidity, light_intensity=light_intensity,  light_status=light_on, email_status=email_status)
 
 @app.route('/toggle_fan')
 def toggle_fan_route():
     toggle_fan()
     return 'OK'
 
+# @app.route('/sensor_data')
+# def sensor_data():
+#     global email_sent, light_on
+#     humidity, temperature = read_dht_sensor()
+#     if temperature is not None and temperature > 15 and not email_sent:
+#         if light_intensity < 400:
+#             # Send email notification
+#             send_email_notification(temperature)
+#             email_sent = True
+#             # Turn on the light
+#             GPIO.output(LED, GPIO.HIGH)
+#             light_on = True
+#         else:
+#             # Turn off the light
+#             GPIO.output(LED, GPIO.LOW)
+#             light_on = False
+#     return jsonify({'temperature': temperature, 'humidity': humidity})
+
 @app.route('/sensor_data')
 def sensor_data():
-    global email_sent
+    global email_sent, light_on
     humidity, temperature = read_dht_sensor()
-    if temperature is not None and temperature > 15:
-        # Reset email_sent flag when page is refreshed
-        email_sent = False
-        if light_intensity < 400 and not email_sent:
-            send_email_notification(temperature)
-            email_sent = True
-    return jsonify({'temperature': temperature, 'humidity': humidity})
+    
+    if temperature is not None:
+        if temperature > 15 and not email_sent:
+            if light_intensity < 400:
+                # Send email notification
+                send_light_notification(temperature)
+                email_sent = True
+                # Turn on the light
+                GPIO.output(LED, GPIO.HIGH)
+                light_on = True
+            else:
+                # Turn off the light
+                GPIO.output(LED, GPIO.LOW)
+                light_on = False
+    
+    return jsonify({'temperature': temperature, 'humidity': humidity, 'light_intensity': light_intensity})
 
-@app.route('/light_intensity')
-def light_intensity():
+
+
+@app.route('/light_status')
+def light_status():
     return jsonify({'light_intensity': light_intensity, 'light_status': 'ON' if light_on else 'OFF', 'email_status': 'SENT' if email_sent else 'NOT SENT'})
 
 
@@ -254,6 +281,11 @@ def toggle_fan_off():
         toggle_fan()
         fan_on = False
         fan_status = "off"  # Update status
+        
+@app.route('/toggle')
+def toggle():
+    toggle_light()
+    return 'OK'
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
