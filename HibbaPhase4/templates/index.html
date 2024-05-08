@@ -42,77 +42,80 @@
                 <br>
                 <b>Name: {{ name }}</b>
                 <br>
-                <div class="input-container">
-                    <label for="temperature">Temperature Threshold:</label>
-                    <input type="text" id="temperature" value="{{ temp_threshold }}">
-                </div>
-                <div class="input-container">
-                    <label for="humidity">Humidity Threshold:</label>
-                    <input type="text" id="humidity" value="{{ humidity_threshold }}">
-                </div>
-                <div class="input-container">
-                    <label for="light-intensity">Light Intensity Threshold:</label>
-                    <input type="text" id="light-intensity" value="{{ light_intensity_threshold }}">
-                </div>
-                <button class="update-button" onclick="updateValues()">Update Values</button>
-            </div>
-
-            <table>
-                <tr>
-                    <td>
-                        <div class="card-container inline">
-                            <div class="ceiling-container fan-{{ 'on' if fan_status else 'off' }}">
-                                <div class="ceiling-fan horizontal left"></div>
-                                <div class="ceiling-fan horizontal right"></div>
-                                <div class="ceiling-fan vertical rotated top"></div>
-                                <div class="ceiling-fan vertical rotated bottom"></div>
-                            </div>
-                            <button id="fanButton">Turn On/Off</button>
-                            <div id="fanStatus">Status: {{ fan_status }}</div> <!-- Fan status -->
-                        </div>
-                    </td>
-                    <td>
-                        <div class="card-container inline" style="height: 300px; flex-direction: row;">
-                            <div class="top-content" style="width: 100%;">
-                                <h4><b>Light Intensity</b></h4>
-                            </div>
-                            <div class="frame center" style="margin: 50px;">
-                                <div class="slider-container">
-                                    <div class="slider center">
-                                        <input class="center" type="range" min="0" max="1000" />
-                                    </div>
-                                    <div class="slider-value center">{{ light_intensity }}</div>
-                                    <p class="light-status"></p>
-                                    <p class="email-status">Email Status: {% if email_status %}Sent{% else %}Not Sent{%
-                                        endif %}</p>
-                                </div>
-                                <div class="wrapper" style="margin: 50px;">
-                                    <div class="light">
-                                        <div id="light_intensity" class="bulb {% if light_status %}on{% endif %}"></div>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <form action="/update_profile" method="POST">
+                    <div class="input-container">
+                        <label for="temperature">Temperature Threshold:</label>
+                        <input type="text" id="temperature" name="temperature" value="{{ temp_threshold }}">
+                    </div>
+                    <div class="input-container">
+                        <label for="humidity">Humidity Threshold:</label>
+                        <input type="text" id="humidity" name="humidity" value="{{ humidity_threshold }}">
+                    </div>
+                    <div class="input-container">
+                        <label for="light-intensity">Light Intensity Threshold:</label>
+                        <input type="text" id="light-intensity" name="light_intensity"
+                            value="{{ light_intensity_threshold }}">
+                    </div>
+                    <button type="submit" class="update-button">Update Values</button>
+                </form>
         </div>
+
+        <table>
+            <tr>
+                <td>
+                    <div class="card-container inline">
+                        <div class="ceiling-container fan-{{ 'on' if fan_status else 'off' }}">
+                            <div class="ceiling-fan horizontal left"></div>
+                            <div class="ceiling-fan horizontal right"></div>
+                            <div class="ceiling-fan vertical rotated top"></div>
+                            <div class="ceiling-fan vertical rotated bottom"></div>
+                        </div>
+                        <button id="fanButton">Turn On/Off</button>
+                        <div id="fanStatus">Status: {{ fan_status }}</div> <!-- Fan status -->
+                    </div>
+                </td>
+                <td>
+                    <div class="card-container inline" style="height: 300px; flex-direction: row;">
+                        <div class="top-content" style="width: 100%;">
+                            <h4><b>Light Intensity</b></h4>
+                        </div>
+                        <div class="frame center" style="margin: 50px;">
+                            <div class="slider-container">
+                                <div class="slider center">
+                                    <input class="center" type="range" min="0" max="1000" />
+                                </div>
+                                <div class="slider-value center">{{ light_intensity }}</div>
+                                <p class="light-status"></p>
+                                <p class="email-status">Email Status: {% if email_status %}Sent{% else %}Not Sent{%
+                                    endif %}</p>
+                            </div>
+                            <div class="wrapper" style="margin: 50px;">
+                                <div class="light">
+                                    <div id="light_intensity" class="bulb {% if light_status %}on{% endif %}"></div>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    </div>
+    </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="card-container" style="padding: 35px;">
+                <h4><b>Temperature</b></h4>
+                <div class="gauge temperature-gauge"></div>
+            </div>
         </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="card-container" style="padding: 35px;">
-                    <h4><b>Temperature</b></h4>
-                    <div class="gauge temperature-gauge"></div>
-                </div>
-            </td>
-            <td>
-                <div class="card-container" style="padding: 35px;">
-                    <h4><b>Humidity</b></h4>
-                    <div class="gauge humidity-gauge"></div>
-                </div>
-            </td>
-        </tr>
-        </table>
+        <td>
+            <div class="card-container" style="padding: 35px;">
+                <h4><b>Humidity</b></h4>
+                <div class="gauge humidity-gauge"></div>
+            </div>
+        </td>
+    </tr>
+    </table>
     </div>
     </div>
 
@@ -136,7 +139,7 @@
 
             function updateLightStatus() {
                 $.get('/light_status', function (data) {
-                    
+
                     if (data.light_status === 'ON') {
                         // Turn on the light bulb
                         $('.bulb').addClass('on');
@@ -144,13 +147,13 @@
                         // Turn off the light bulb
                         $('.bulb').removeClass('on');
                     }
-             
+
                     $('body').toggleClass('on', data.light_status === 'ON');
                     $('.light-status').text('Status: ' + data.light_status);
                 });
             }
 
-         
+
             updateLightStatus();
             setInterval(updateLightStatus, 5000);
 

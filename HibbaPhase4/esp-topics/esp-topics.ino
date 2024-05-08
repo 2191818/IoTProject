@@ -101,28 +101,23 @@ void loop() {
           piccType == MFRC522::PICC_TYPE_MIFARE_1K ||
           piccType == MFRC522::PICC_TYPE_MIFARE_4K) {
         Serial.println(F("Your tag is of type MIFARE Classic."));
-        if (rfid.uid.uidByte[0] != nuidPICC[0] ||
-            rfid.uid.uidByte[1] != nuidPICC[1] ||
-            rfid.uid.uidByte[2] != nuidPICC[2] ||
-            rfid.uid.uidByte[3] != nuidPICC[3]) {
-          Serial.println(F("A new card has been detected."));
+        
+        Serial.println(F("A card has been detected."));
 
-          // Store NUID into nuidPICC array
-          for (byte i = 0; i < 4; i++) {
-            nuidPICC[i] = rfid.uid.uidByte[i];
-          }
-
-          Serial.println(F("The NUID tag is:"));
-          Serial.print(F("In dec: "));
-          printDec(rfid.uid.uidByte, rfid.uid.size);
-          Serial.println();
-
-          // Publish NUID tag in dec format
-          String nuid_dec = byteArrayToDecimalString(rfid.uid.uidByte, rfid.uid.size);
-          client.publish(topic_nuid_dec, nuid_dec.c_str());
-        } else {
-          Serial.println(F("Card read previously."));
+        // Store NUID into nuidPICC array
+        for (byte i = 0; i < 4; i++) {
+          nuidPICC[i] = rfid.uid.uidByte[i];
         }
+
+        Serial.println(F("The NUID tag is:"));
+        Serial.print(F("In dec: "));
+        printDec(rfid.uid.uidByte, rfid.uid.size);
+        Serial.println();
+
+        // Publish NUID tag in dec format
+        String nuid_dec = byteArrayToDecimalString(rfid.uid.uidByte, rfid.uid.size);
+        client.publish(topic_nuid_dec, nuid_dec.c_str());
+        
       } else {
         Serial.println(F("Your tag is not of type MIFARE Classic."));
       }
@@ -136,6 +131,7 @@ void loop() {
 
   delay(1000); // Adjust delay as needed
 }
+
 
 void printDec(byte *buffer, byte bufferSize) {
   for (byte i = 0; i < bufferSize; i++) {

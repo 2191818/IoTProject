@@ -57,6 +57,39 @@ mqtt_topic_nuid_dec = "nuid_dec"
 
 # Initialize MQTT client
 mqtt_client = mqtt.Client()
+# 
+# def on_message(client, userdata, message):
+#     global light_intensity, email_sent, light_on, user_info
+#     if message.topic == mqtt_topic_light_intensity:
+#         light_intensity = int(message.payload.decode())
+#         if light_intensity < 400 and not email_sent:
+#             send_light_notification()
+#             email_sent = True
+#             GPIO.output(LED, GPIO.HIGH)
+#             light_on = True
+#         elif light_intensity >= 400:
+#             GPIO.output(LED, GPIO.LOW)
+#             light_on = False
+#     elif message.topic == mqtt_topic_nuid_dec:
+#         try:
+#             nuid_dec = message.payload.decode().strip()  # Remove any leading/trailing whitespaces
+#             print("Received NUID:", nuid_dec)  # Debugging
+#             conn = get_db_connection()
+#             # Compare ignoring whitespace
+#             user = conn.execute("SELECT * FROM users WHERE REPLACE(UserID, ' ', '') = ?", 
+#                                 (nuid_dec.replace(" ", ""),)).fetchone()
+#             conn.close()
+#             if user:
+#                 user_info["user_id"] = nuid_dec
+#                 user_info["name"] = user["Name"]
+#                 user_info["temp_threshold"] = user["Temp_Threshold"]
+#                 user_info["humidity_threshold"] = user["Humidity_Threshold"]
+#                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
+#                 print("User info retrieved successfully:", user_info)  # Debugging
+#             else:
+#                 print("No user found with the provided NUID:", nuid_dec)  # Debugging
+#         except Exception as e:
+#             print("Error:", e)
 
 def on_message(client, userdata, message):
     global light_intensity, email_sent, light_on, user_info
@@ -75,7 +108,7 @@ def on_message(client, userdata, message):
             nuid_dec = message.payload.decode().strip()  # Remove any leading/trailing whitespaces
             print("Received NUID:", nuid_dec)  # Debugging
             conn = get_db_connection()
-            # Compare ignoring whitespace
+        
             user = conn.execute("SELECT * FROM users WHERE REPLACE(UserID, ' ', '') = ?", 
                                 (nuid_dec.replace(" ", ""),)).fetchone()
             conn.close()
@@ -86,10 +119,15 @@ def on_message(client, userdata, message):
                 user_info["humidity_threshold"] = user["Humidity_Threshold"]
                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
                 print("User info retrieved successfully:", user_info)  # Debugging
+                 # Send email
+                send_rfid_notification(user_info["name"])  
+
             else:
                 print("No user found with the provided NUID:", nuid_dec)  # Debugging
         except Exception as e:
             print("Error:", e)
+        
+
 
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
@@ -104,6 +142,31 @@ def get_db_connection():
     conn = sqlite3.connect("IoTHome.db")
     conn.row_factory = sqlite3.Row  # Allows accessing data by column name
     return conn
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    temperature_threshold = request.form['temperature']
+    humidity_threshold = request.form['humidity']
+    light_intensity_threshold = request.form['light_intensity']
+
+    conn = get_db_connection()
+    conn.execute("UPDATE users SET Temp_Threshold=?, Humidity_Threshold=?, Light_Intensity_Threshold=? WHERE UserID=?",
+                 (temperature_threshold, humidity_threshold, light_intensity_threshold, user_info["user_id"]))
+    conn.commit()
+    conn.close()
+
+    # Update user_info with new thresholds
+    user_info["temp_threshold"] = temperature_threshold
+    user_info["humidity_threshold"] = humidity_threshold
+    user_info["light_intensity_threshold"] = light_intensity_threshold
+
+    # Debug message
+    print("User info updated:", user_info)
+    
+    # Redirect to index route with updated user_info
+    return redirect(url_for('index'))
+
+
 
 # Function to toggle the light
 def toggle_light():
@@ -235,6 +298,42 @@ def send_light_notification():
         print("Email notification sent successfully!")
     except Exception as e:
         print(f"Failed to send email: {e}")
+        
+        
+def send_rfid_notification(user_name):
+    sender_email = "iot-master-o@outlook.com"
+    receiver_email = "iot-master-o@outlook.com"
+    password = "iot4life"
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "RFID Tag Notification"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    text = f"User {user_name} entered at {datetime.datetime.now()}"
+    html = f"""\
+        <html>
+        <head></head>
+        <body>
+            <p>User {user_name} entered at {datetime.datetime.now()}</p>
+        </body>
+        </html>
+        """
+
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
+
+    message.attach(part1)
+    message.attach(part2)
+
+    try:
+        with smtplib.SMTP("smtp.outlook.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+        print("RFID tag notification sent successfully!")
+    except Exception as e:
+        print(f"Failed to send RFID tag notification: {e}")
 
 
 @app.route('/')
@@ -258,6 +357,7 @@ def index():
         light_status=light_on,
         email_status=email_status
     )
+
 
 @app.route('/toggle_fan')
 def toggle_fan_route():
