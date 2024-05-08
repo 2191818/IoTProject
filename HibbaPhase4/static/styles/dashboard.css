@@ -200,6 +200,13 @@ footer {
     background-color: #001F3F;
 }
 
+
+.update-button[disabled] {
+    background-color: #cccccc;
+    color: #666666; 
+    cursor: not-allowed; 
+}
+
 /* gauge.css */
 
 .gauge {

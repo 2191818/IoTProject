@@ -10,7 +10,7 @@ INSERT INTO users (UserID, Name, Temp_Threshold, Humidity_Threshold, Light_Inten
 
 INSERT INTO users (UserID, Name, Temp_Threshold, Humidity_Threshold, Light_Intensity_Threshold) VALUES ('3 241 208 4', 'Qaraman', 27, 48, 470);
 
-INSERT INTO users (UserID, Name, Temp_Threshold, Humidity_Threshold, Light_Intensity_Threshold) VALUES ('92 51 11 50', 'Arsalan', 25, 55, 500);
+INSERT INTO users (UserID, Name, Temp_Threshold, Humidity_Threshold, Light_Intensity_Threshold) VALUES ('93 51 11 50', 'Arsalan', 25, 55, 500);
 
 INSERT INTO users (UserID, Name, Temp_Threshold, Humidity_Threshold, Light_Intensity_Threshold) VALUES ('181 157 143 172', 'Saeed', 24, 60, 490);
 

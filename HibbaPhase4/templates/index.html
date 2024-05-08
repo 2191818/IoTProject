@@ -56,10 +56,14 @@
                         <input type="text" id="light-intensity" name="light_intensity"
                             value="{{ light_intensity_threshold }}">
                     </div>
+                    {% if user_id != "Null" %}
                     <button type="submit" class="update-button">Update Values</button>
+                    {% else %}
+                    <button type="submit" class="update-button" disabled>Update Values</button>
+                    {% endif %}
                 </form>
         </div>
-
+        
         <table>
             <tr>
                 <td>
