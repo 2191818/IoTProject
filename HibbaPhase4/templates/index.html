@@ -149,13 +149,14 @@
                     }
 
                     $('body').toggleClass('on', data.light_status === 'ON');
-                    $('.light-status').text('Status: ' + data.light_status);
+                $('.light-status').text('Status: ' + data.light_status);
+                $('.email-status').text('Email Status: ' + data.email_status);
+                $('.slider-value').text(data.light_intensity);
                 });
             }
 
-
+            setInterval(updateLightStatus, 1000);
             updateLightStatus();
-            setInterval(updateLightStatus, 5000);
 
             // Toggle LED2 (GPIO 5) when the button is clicked
             $('#toggle_button').click(function () {

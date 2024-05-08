@@ -50,7 +50,7 @@ user_info = {
 }
 
 # MQTT configuration
-mqtt_broker = "192.168.2.32"
+mqtt_broker = "192.168.2.38"
 mqtt_port = 1883
 mqtt_topic_light_intensity = "light_intensity"
 mqtt_topic_nuid_dec = "nuid_dec"
@@ -371,17 +371,16 @@ def sensor_data():
     
     if temperature is not None:
         if temperature > 15 and not email_sent:
-            if light_intensity < 400:
-                # Send email notification
-                send_light_notification()
-                email_sent = True
-                # Turn on the light
-                GPIO.output(LED, GPIO.HIGH)
-                light_on = True
-            else:
-                # Turn off the light
-                GPIO.output(LED, GPIO.LOW)
-                light_on = False
+            # Send email notification
+            send_email_notification(temperature)
+            email_sent = True
+
+        if light_intensity < 400:
+            GPIO.output(LED, GPIO.HIGH)
+            light_on = True
+        else:
+            GPIO.output(LED, GPIO.LOW)
+            light_on = False
     
     return jsonify({'temperature': temperature, 'humidity': humidity, 'light_intensity': light_intensity})
 
