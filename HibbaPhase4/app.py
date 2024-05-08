@@ -40,7 +40,7 @@ fan_on = False
 email_sent = False
 light_intensity = 0
 
-# Global variables to store user information
+# Initialize user_info with default values
 user_info = {
     "user_id": "Null",
     "name": "Unknown",
@@ -58,7 +58,6 @@ mqtt_topic_nuid_dec = "nuid_dec"
 # Initialize MQTT client
 mqtt_client = mqtt.Client()
 
-# Function to handle MQTT messages
 def on_message(client, userdata, message):
     global light_intensity, email_sent, light_on, user_info
     if message.topic == mqtt_topic_light_intensity:
@@ -91,8 +90,6 @@ def on_message(client, userdata, message):
                 print("No user found with the provided NUID:", nuid_dec)  # Debugging
         except Exception as e:
             print("Error:", e)
-
-
 
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
@@ -238,15 +235,18 @@ def send_light_notification():
         print("Email notification sent successfully!")
     except Exception as e:
         print(f"Failed to send email: {e}")
-        
+
+
 @app.route('/')
 def index():
     humidity, temperature = read_dht_sensor()
     email_status = "Email has been sent" if email_sent else None
+
+    # Pass user information from MQTT to the template
     return render_template(
         'index.html',
+        user_id=user_info["user_id"],
         name=user_info["name"],
-        user_id=user_info["user_id"],  # Render user_id
         temp_threshold=user_info["temp_threshold"],
         humidity_threshold=user_info["humidity_threshold"],
         light_intensity_threshold=user_info["light_intensity_threshold"],
@@ -258,7 +258,6 @@ def index():
         light_status=light_on,
         email_status=email_status
     )
-
 
 @app.route('/toggle_fan')
 def toggle_fan_route():

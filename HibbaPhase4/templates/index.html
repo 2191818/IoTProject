@@ -38,26 +38,25 @@
                 </div>
                 <h4><b>User Profile</b></h4>
                 <img src="../static/images/avatar.jpg" alt="Avatar" class="avatar">
-                <b>User ID: {{ user | default('null') }}</b>
+                <b>User ID: {{ user_id }}</b>
                 <br>
-                <b>Name: {{ name | default('unknown') }}</b>
+                <b>Name: {{ name }}</b>
                 <br>
                 <div class="input-container">
                     <label for="temperature">Temperature Threshold:</label>
-
-                    <input type="text" id="temperature" value="{{ temp | default(0) }}">
+                    <input type="text" id="temperature" value="{{ temp_threshold }}">
                 </div>
                 <div class="input-container">
                     <label for="humidity">Humidity Threshold:</label>
-                    <input type="text" id="humidity" value="{{ humidity | default(0) }}">
+                    <input type="text" id="humidity" value="{{ humidity_threshold }}">
                 </div>
                 <div class="input-container">
                     <label for="light-intensity">Light Intensity Threshold:</label>
-
-                    <input type="text" id="light-intensity" value="{{ light_intensity | default(0) }}">
+                    <input type="text" id="light-intensity" value="{{ light_intensity_threshold }}">
                 </div>
                 <button class="update-button" onclick="updateValues()">Update Values</button>
             </div>
+
             <table>
                 <tr>
                     <td>
@@ -137,7 +136,7 @@
 
             function updateLightStatus() {
                 $.get('/light_status', function (data) {
-                    // Update the light bulb class based on the light status
+                    
                     if (data.light_status === 'ON') {
                         // Turn on the light bulb
                         $('.bulb').addClass('on');
@@ -145,25 +144,19 @@
                         // Turn off the light bulb
                         $('.bulb').removeClass('on');
                     }
-
-                    // Toggle the body class based on the light status
+             
                     $('body').toggleClass('on', data.light_status === 'ON');
-
-                    // Update the light status text
                     $('.light-status').text('Status: ' + data.light_status);
                 });
             }
 
-            // Initial call to update light status
+         
             updateLightStatus();
-
-            // Set interval to update light status every 5 seconds
             setInterval(updateLightStatus, 5000);
 
             // Toggle LED2 (GPIO 5) when the button is clicked
             $('#toggle_button').click(function () {
                 $.get('/toggle', function () {
-                    // Update the background gradient and text color based on the light status
                     if ($('#toggle_button').prop('checked')) {
                         // Light is on
                         $('body').css({
@@ -213,11 +206,14 @@
             function updateSensorData() {
                 $.get('/sensor_data', function (data) {
                     if ('temperature' in data && 'humidity' in data) {
+                        let temperatureValue = typeof data.temperature === 'number' ? data.temperature.toFixed(2) : '';
+                        let humidityValue = typeof data.humidity === 'number' ? data.humidity.toFixed(2) : '';
+
                         temperatureGauge = new GaugeChart('.temperature-gauge', {
                             initialValue: data.temperature,
                             higherValue: 60,
                             title: 'Temperature',
-                            subtitle: data.temperature.toFixed(2) + '°C',
+                            subtitle: temperatureValue !== '' ? temperatureValue + '°C' : '',
                             customTicks: [0, 10, 20, 30, 40, 50, 60]
                         });
 
@@ -225,14 +221,14 @@
                             initialValue: data.humidity,
                             higherValue: 100,
                             title: 'Humidity',
-                            subtitle: data.humidity.toFixed(2) + '%',
+                            subtitle: humidityValue !== '' ? humidityValue + '%' : '',
                             customTicks: [0, 20, 40, 60, 80, 100]
                         });
 
                         temperatureGauge.init();
                         humidityGauge.init();
-                        temperatureGauge.update(temperatureGauge, temperatureGauge.toFixed(2) + '°C');
-                        humidityGauge.update(humidityGauge, humidityGauge.toFixed(2) + '%');
+                        temperatureGauge.update(data.temperature, temperatureValue !== '' ? temperatureValue + '°C' : '');
+                        humidityGauge.update(data.humidity, humidityValue !== '' ? humidityValue + '%' : '');
                     } else {
                         console.error('Invalid data received from server.');
                     }
