@@ -7,6 +7,8 @@ import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import sqlite3
+import threading
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -38,37 +40,73 @@ fan_on = False
 email_sent = False
 light_intensity = 0
 
+# Global variables to store user information
+user_info = {
+    "user_id": "Null",
+    "name": "Unknown",
+    "temp_threshold": 0,
+    "humidity_threshold": 0,
+    "light_intensity_threshold": 0
+}
+
 # MQTT configuration
 mqtt_broker = "192.168.2.32"
 mqtt_port = 1883
-mqtt_topic = "light_intensity"
+mqtt_topic_light_intensity = "light_intensity"
+mqtt_topic_nuid_dec = "nuid_dec"
 
 # Initialize MQTT client
 mqtt_client = mqtt.Client()
 
-# MQTT message callback
+# Function to handle MQTT messages
 def on_message(client, userdata, message):
-    global light_intensity, email_sent, light_on
-    try:
+    global light_intensity, email_sent, light_on, user_info
+    if message.topic == mqtt_topic_light_intensity:
         light_intensity = int(message.payload.decode())
-    except ValueError:
-        print("Error: Invalid MQTT message payload")
-        return
+        if light_intensity < 400 and not email_sent:
+            send_light_notification()
+            email_sent = True
+            GPIO.output(LED, GPIO.HIGH)
+            light_on = True
+        elif light_intensity >= 400:
+            GPIO.output(LED, GPIO.LOW)
+            light_on = False
+    elif message.topic == mqtt_topic_nuid_dec:
+        try:
+            nuid_dec = message.payload.decode().strip()  # Remove any leading/trailing whitespaces
+            print("Received NUID:", nuid_dec)  # Debugging
+            conn = get_db_connection()
+            # Compare ignoring whitespace
+            user = conn.execute("SELECT * FROM users WHERE REPLACE(UserID, ' ', '') = ?", 
+                                (nuid_dec.replace(" ", ""),)).fetchone()
+            conn.close()
+            if user:
+                user_info["user_id"] = nuid_dec
+                user_info["name"] = user["Name"]
+                user_info["temp_threshold"] = user["Temp_Threshold"]
+                user_info["humidity_threshold"] = user["Humidity_Threshold"]
+                user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
+                print("User info retrieved successfully:", user_info)  # Debugging
+            else:
+                print("No user found with the provided NUID:", nuid_dec)  # Debugging
+        except Exception as e:
+            print("Error:", e)
 
-    if light_intensity < 400 and not email_sent:
-        send_light_notification()
-        email_sent = True
-        GPIO.output(LED, GPIO.HIGH)
-        light_on = True
-    elif light_intensity >= 400:
-        GPIO.output(LED, GPIO.LOW)
-        light_on = False
+
 
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
 mqtt_client.connect(mqtt_broker, mqtt_port)
-mqtt_client.subscribe(mqtt_topic)
-mqtt_client.loop_start()
+mqtt_client.subscribe([(mqtt_topic_light_intensity, 0), (mqtt_topic_nuid_dec, 0)])
+
+# Start the MQTT client loop in a background thread
+mqtt_thread = threading.Thread(target=mqtt_client.loop_start)
+mqtt_thread.start()
+
+def get_db_connection():
+    conn = sqlite3.connect("IoTHome.db")
+    conn.row_factory = sqlite3.Row  # Allows accessing data by column name
+    return conn
 
 # Function to toggle the light
 def toggle_light():
@@ -79,7 +117,6 @@ def toggle_light():
     else:
         GPIO.output(LED2, GPIO.LOW)
         light_on2 = False
-
 
 # Function to toggle the fan
 def toggle_fan():
@@ -201,35 +238,32 @@ def send_light_notification():
         print("Email notification sent successfully!")
     except Exception as e:
         print(f"Failed to send email: {e}")
-
+        
 @app.route('/')
 def index():
     humidity, temperature = read_dht_sensor()
     email_status = "Email has been sent" if email_sent else None
-    return render_template('index.html', light_status2=light_on2, fan_status=fan_on, temperature=temperature, humidity=humidity, light_intensity=light_intensity,  light_status=light_on, email_status=email_status)
+    return render_template(
+        'index.html',
+        name=user_info["name"],
+        user_id=user_info["user_id"],  # Render user_id
+        temp_threshold=user_info["temp_threshold"],
+        humidity_threshold=user_info["humidity_threshold"],
+        light_intensity_threshold=user_info["light_intensity_threshold"],
+        light_status2=light_on2,
+        fan_status=fan_on,
+        temperature=temperature,
+        humidity=humidity,
+        light_intensity=light_intensity,
+        light_status=light_on,
+        email_status=email_status
+    )
+
 
 @app.route('/toggle_fan')
 def toggle_fan_route():
     toggle_fan()
     return 'OK'
-
-# @app.route('/sensor_data')
-# def sensor_data():
-#     global email_sent, light_on
-#     humidity, temperature = read_dht_sensor()
-#     if temperature is not None and temperature > 15 and not email_sent:
-#         if light_intensity < 400:
-#             # Send email notification
-#             send_email_notification(temperature)
-#             email_sent = True
-#             # Turn on the light
-#             GPIO.output(LED, GPIO.HIGH)
-#             light_on = True
-#         else:
-#             # Turn off the light
-#             GPIO.output(LED, GPIO.LOW)
-#             light_on = False
-#     return jsonify({'temperature': temperature, 'humidity': humidity})
 
 @app.route('/sensor_data')
 def sensor_data():
@@ -240,7 +274,7 @@ def sensor_data():
         if temperature > 15 and not email_sent:
             if light_intensity < 400:
                 # Send email notification
-                send_light_notification(temperature)
+                send_light_notification()
                 email_sent = True
                 # Turn on the light
                 GPIO.output(LED, GPIO.HIGH)
@@ -252,12 +286,9 @@ def sensor_data():
     
     return jsonify({'temperature': temperature, 'humidity': humidity, 'light_intensity': light_intensity})
 
-
-
 @app.route('/light_status')
 def light_status():
     return jsonify({'light_intensity': light_intensity, 'light_status': 'ON' if light_on else 'OFF', 'email_status': 'SENT' if email_sent else 'NOT SENT'})
-
 
 @app.route('/confirm_fan', methods=['GET'])
 def confirm_fan():
