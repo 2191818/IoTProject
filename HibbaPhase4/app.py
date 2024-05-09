@@ -110,7 +110,7 @@ def on_message(client, userdata, message):
                     "user_id": "",
                     "name": "",
                     "temp_threshold": default_temp_threshold,
-                    "humidity_threshold": "",
+                    "humidity_threshold": "0",
                     "light_intensity_threshold": default_light_threshold
                 }
                 # Check light intensity and trigger actions if below default
