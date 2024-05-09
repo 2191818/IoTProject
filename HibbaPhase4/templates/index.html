@@ -64,6 +64,40 @@
                 </form>
             </div>
         
+            <script>
+                const eventSource = new EventSource("/stream_rfid");
+        
+                eventSource.onmessage = function(event) {
+                    const data = event.data.split('\n');
+        
+                    data.forEach(line => {
+                        const [key, value] = line.split(': ', 2);
+                        
+                        switch (key) {
+                            case 'user_id':
+                                document.getElementById('user_id').textContent = value;
+                                break;
+                            case 'name':
+                                document.getElementById('user_name').textContent = value;
+                                break;
+                            case 'temp_threshold':
+                                document.getElementById('temperature').value = value;
+                                break;
+                            case 'humidity_threshold':
+                                document.getElementById('humidity').value = value;
+                                break;
+                            case 'light_intensity_threshold':
+                                document.getElementById('light-intensity').value = value;
+                                break;
+                        }
+                    });
+                };
+        
+                eventSource.onerror = function() {
+                    console.error("Error with SSE connection");
+                };
+            </script>
+
         <table>
             <tr>
                 <td>
@@ -177,19 +211,6 @@
                             'background': 'linear-gradient(90deg, #2C3E50, #34495E)',
                             'color': 'white'
                         });
-                    }
-                });
-            });
-
-            // Event listener for the fan toggle button
-            $('#fanButton').click(function () {
-                $.get('/toggle_fan', function () {
-                    // Toggle the 'on' class on the fan button
-                    var fanButton = $('#fanButton');
-                    if (fanButton.hasClass('on')) {
-                        fanButton.removeClass('on').text('Turn On');
-                    } else {
-                        fanButton.addClass('on').text('Turn Off');
                     }
                 });
             });

@@ -14,9 +14,9 @@ if GPIO.getmode() is None:
     GPIO.setmode(GPIO.BCM)
 
 LED = 27
-Motor1 = 16 # Enable Pin
-Motor2 = 20 # Input Pin765
-Motor3 = 21 # Input Pin
+Motor1 = 6
+Motor2 = 13
+Motor3 = 19
 
 GPIO.setup(LED, GPIO.OUT)
 GPIO.setup(Motor1, GPIO.OUT)

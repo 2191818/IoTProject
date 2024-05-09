@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, Response, request, jsonify, redirect, url_for
 import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO
 from time import sleep
@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import sqlite3
 import threading
+import time
 
 
 # Initialize Flask app
@@ -22,9 +23,12 @@ GPIO.setmode(GPIO.BCM)
 DHTPin = 17
 LED = 27
 LED2 = 5
-Motor1 = 16
-Motor2 = 20
-Motor3 = 21
+# Motor1 = 16
+# Motor2 = 20
+# Motor3 = 21
+Motor1 = 6
+Motor2 = 13
+Motor3 = 19
 
 # Setup GPIO pins
 GPIO.setup(DHTPin, GPIO.OUT)
@@ -56,7 +60,7 @@ user_info = {
 
 # MQTT configuration
 # mqtt_broker = "192.168.2.32"
-mqtt_broker = "192.168.2.38"
+mqtt_broker = "172.20.10.4"
 mqtt_port = 1883
 mqtt_topic_light_intensity = "light_intensity"
 mqtt_topic_nuid_dec = "nuid_dec"
@@ -325,6 +329,27 @@ def send_rfid_notification(user_name):
         print("RFID tag notification sent successfully!")
     except Exception as e:
         print(f"Failed to send RFID tag notification: {e}")
+
+
+@app.route('/stream_rfid')
+def stream_rfid():
+    def event_stream():
+        while True:
+            # Check if there's user information to send
+            if user_info["user_id"]:
+                # Create the message with multiple fields
+                sse_message = (
+                    f"data: user_id: {user_info['user_id']}\n"
+                    f"data: name: {user_info['name']}\n"
+                    f"data: temp_threshold: {user_info['temp_threshold']}\n"
+                    f"data: humidity_threshold: {user_info['humidity_threshold']}\n"
+                    f"data: light_intensity_threshold: {user_info['light_intensity_threshold']}\n\n"
+                )
+                yield sse_message
+                user_info["user_id"] = None  # Reset after sending
+            # Control frequency of events
+            time.sleep(1)
+    return Response(event_stream(), mimetype="text/event-stream")
 
 
 @app.route('/')
