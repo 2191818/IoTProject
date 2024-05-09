@@ -396,7 +396,6 @@ def toggle_fan_route():
     return 'OK'
 
 
-@app.route('/sensor_data')
 def sensor_data():
     global light_on, email_sent
     
@@ -404,47 +403,29 @@ def sensor_data():
     humidity, temperature = read_dht_sensor()
     
     if temperature is not None:
-        # Check if the temperature exceeds the user-defined threshold or the default threshold
-        if temperature > float(user_info["temp_threshold"]) or temperature > default_temp_threshold:
-            # Check if the light intensity is below the user-defined threshold or the default threshold
-            if light_intensity < int(user_info["light_intensity_threshold"]) or light_intensity < default_light_threshold:
-                # Check if the light is already off
-                if not light_on:
-                    # Turn on the light
-                    GPIO.output(LED, GPIO.HIGH)
-                    light_on = True
-                    # Send email notification
-                    if not email_sent:
-                        send_light_notification()
-                        send_email_notification(temperature)
-                        email_sent = True
+        # Check temperature threshold
+        if temperature > float(user_info.get("temp_threshold", default_temp_threshold)):
+            # Send email notification if not already sent
+            if not email_sent:
+                send_email_notification(temperature)
+                email_sent = True
         else:
-            # Turn off the light if it's on
-            if light_on:
-                GPIO.output(LED, GPIO.LOW)
-                light_on = False
+            # Turn off email_sent flag if temperature is below threshold
+            email_sent = False
+            
+    # Check light intensity threshold
+    if light_intensity < int(user_info.get("light_intensity_threshold", default_light_threshold)):
+        # Turn on the light if it's off
+        if not light_on:
+            GPIO.output(LED, GPIO.HIGH)
+            light_on = True
+    else:
+        # Turn off the light if it's on
+        if light_on:
+            GPIO.output(LED, GPIO.LOW)
+            light_on = False
     
     return jsonify({'temperature': temperature, 'humidity': humidity, 'light_intensity': light_intensity}) 
-
-# @app.route('/sensor_data')
-# def sensor_data():
-#     global email_sent, light_on
-#     humidity, temperature = read_dht_sensor()
-#     
-#     if temperature is not None:
-#         if temperature > 15 and not email_sent:
-#             # Send email notification
-#             send_email_notification(temperature)
-#             email_sent = True
-# 
-#         if light_intensity < 400:
-#             GPIO.output(LED, GPIO.HIGH)
-#             light_on = True
-#         else:
-#             GPIO.output(LED, GPIO.LOW)
-#             light_on = False
-#     
-#     return jsonify({'temperature': temperature, 'humidity': humidity, 'light_intensity': light_intensity})
 
 @app.route('/light_status')
 def light_status():
