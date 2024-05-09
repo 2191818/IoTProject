@@ -384,9 +384,9 @@ def sensor_data():
                 email_sent = False
             
     # Check light intensity threshold
-    if "light_intensity_threshold" in user_info:
+    if "user_id" in user_info:
         if light_intensity < int(user_info["light_intensity_threshold"]):
-            # Turn on the light if it's off
+            # Turn on the light using the user's threshold
             if not light_on:
                 GPIO.output(LED, GPIO.HIGH)
                 light_on = True
