@@ -103,22 +103,24 @@ def on_message(client, userdata, message):
                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
                 print("User info retrieved successfully:", user_info)
                 send_rfid_notification(user_info["name"])
+                # Check temperature threshold and send email if necessary
+                if temperature is not None and float(user_info["temp_threshold"]) < temperature and not email_sent:
+                    send_email_notification(temperature)
+                    email_sent = True
             else:
                 print("No user found with the provided NUID:", nuid_dec)
-                # If no user is found, set user_info to default values
+                # If no user is found, use default user_info
                 user_info = {
                     "user_id": "",
                     "name": "",
                     "temp_threshold": default_temp_threshold,
-                    "humidity_threshold": "0",
+                    "humidity_threshold": 0,
                     "light_intensity_threshold": default_light_threshold
                 }
-                # Check light intensity and trigger actions if below default
-                if light_intensity < default_light_threshold and not email_sent:
-                    send_light_notification()
+                # Check temperature threshold and send email if necessary
+                if temperature is not None and default_temp_threshold < temperature and not email_sent:
+                    send_email_notification(temperature)
                     email_sent = True
-                    GPIO.output(LED, GPIO.HIGH)
-                    light_on = True
         except Exception as e:
             print("Error:", e)
 
