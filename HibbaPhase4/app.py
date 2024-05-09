@@ -126,12 +126,12 @@ def on_message(client, userdata, message):
     global light_intensity, email_sent, light_on, user_info
     if message.topic == mqtt_topic_light_intensity:
         light_intensity = int(message.payload.decode())
-        if light_intensity < 400 and not email_sent:
+        if light_intensity < int(user_info["light_intensity_threshold"]) and not email_sent:
             send_light_notification()
             email_sent = True
             GPIO.output(LED, GPIO.HIGH)
             light_on = True
-        elif light_intensity >= 400:
+        elif light_intensity >= int(user_info["light_intensity_threshold"]):
             GPIO.output(LED, GPIO.LOW)
             light_on = False
     elif message.topic == mqtt_topic_nuid_dec:
