@@ -39,8 +39,6 @@ light_on2 = False
 fan_on = False
 email_sent = False
 light_intensity = 0
-temperature_email_sent_for_user = False
-previous_user_id = "Null"
 
 # Set default thresholds
 default_temp_threshold = 15
@@ -66,8 +64,7 @@ mqtt_topic_nuid_dec = "nuid_dec"
 mqtt_client = mqtt.Client()
 
 def on_message(client, userdata, message):
-    global light_intensity, email_sent, light_on, user_info, temperature_email_sent_for_user, previous_user_id
-    
+    global light_intensity, email_sent, light_on, user_info
     if message.topic == mqtt_topic_light_intensity:
         light_intensity = int(message.payload.decode())
         if "light_intensity_threshold" in user_info:
@@ -80,6 +77,7 @@ def on_message(client, userdata, message):
                 GPIO.output(LED, GPIO.LOW)
                 light_on = False
         else:
+            # Use default light threshold
             if light_intensity < default_light_threshold and not email_sent:
                 send_light_notification()
                 email_sent = True
@@ -90,9 +88,10 @@ def on_message(client, userdata, message):
                 light_on = False
     elif message.topic == mqtt_topic_nuid_dec:
         try:
-            nuid_dec = message.payload.decode().strip()
-            print("Received NUID:", nuid_dec)
+            nuid_dec = message.payload.decode().strip()  # Remove any leading/trailing whitespaces
+            print("Received NUID:", nuid_dec)  # Debugging
             conn = get_db_connection()
+        
             user = conn.execute("SELECT * FROM users WHERE REPLACE(UserID, ' ', '') = ?", 
                                 (nuid_dec.replace(" ", ""),)).fetchone()
             conn.close()
@@ -102,21 +101,14 @@ def on_message(client, userdata, message):
                 user_info["temp_threshold"] = user["Temp_Threshold"]
                 user_info["humidity_threshold"] = user["Humidity_Threshold"]
                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
-                print("User info retrieved successfully:", user_info)
-                send_rfid_notification(user_info["name"])
+                print("User info retrieved successfully:", user_info)  # Debugging
+                # Send email
+                send_rfid_notification(user_info["name"])  
+
             else:
-                print("No user found with the provided NUID:", nuid_dec)
+                print("No user found with the provided NUID:", nuid_dec)  # Debugging
         except Exception as e:
             print("Error:", e)
-    
-    if user_info["user_id"] == "Null" or user_info["user_id"] != previous_user_id:
-        send_email_notification(temperature, not temperature_email_sent_for_user)
-        temperature_email_sent_for_user = True
-    else:
-        temperature_email_sent_for_user = False
-
-    previous_user_id = user_info["user_id"]
-
 
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
@@ -191,75 +183,73 @@ def read_dht_sensor():
     return None, None
 
 # Function to send email notification for temperature
-# Function to send email notification for temperature
-def send_email_notification(temp, email_sent_for_user):
-    if not email_sent_for_user:
-        sender_email = "iot-master-o@outlook.com"
-        receiver_email = "iot-master-o@outlook.com"
-        password = "iot4life"
+def send_email_notification(temp):
+    sender_email = "iot-master-o@outlook.com"
+    receiver_email = "iot-master-o@outlook.com"
+    password = "iot4life"
 
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "Temperature Alert"
-        message["From"] = sender_email
-        message["To"] = receiver_email
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Temperature Alert"
+    message["From"] = sender_email
+    message["To"] = receiver_email
 
-        text = f"The current temperature is {temp}. Would you like to turn on the fan?"
-        html = f"""\
-            <html>
-            <head>
-                <style>
-                .container {{
-                    padding: 20px;
-                    font-family: Arial, sans-serif;
-                    text-align: center; /* Center-align the content */
-                }}
-                .message {{
-                    margin-bottom: 20px;
-                }}
-                .a {{
-                    display: inline-block; /* Display the buttons in a block */
-                }}
-                .a {{
-                    background-color: #007bff;
-                    color: #fff;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    text-decoration: none;
-                    margin: 5px; /* Add margin between buttons */
-                    display: inline-block; /* Display buttons in a line */
-                }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                <div class="message">
-                    <p>The current temperature is {temp}. Would you like to turn on the fan?</p>
-                </div>
-                <div class="buttons">
-                    <p><a href="http://127.0.0.1:5000/confirm_fan?choice=yes" class="email-link">Yes, turn on the fan</a></p>
-                    <p><a href="http://127.0.0.1:5000/confirm_fan?choice=no" class="email-link">No, keep it off</a></p>
-                </div>
-                </div>
-            </body>
-            </html>
-            """
+    text = f"The current temperature is {temp}. Would you like to turn on the fan?"
+    html = f"""\
+        <html>
+        <head>
+            <style>
+            .container {{
+                padding: 20px;
+                font-family: Arial, sans-serif;
+                text-align: center; /* Center-align the content */
+            }}
+            .message {{
+                margin-bottom: 20px;
+            }}
+            .a {{
+                display: inline-block; /* Display the buttons in a block */
+            }}
+            .a {{
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                text-decoration: none;
+                margin: 5px; /* Add margin between buttons */
+                display: inline-block; /* Display buttons in a line */
+            }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+            <div class="message">
+                <p>The current temperature is {temp}. Would you like to turn on the fan?</p>
+            </div>
+            <div class="buttons">
+                  <p><a href="http://127.0.0.1:5000/confirm_fan?choice=yes" class="email-link">Yes, turn on the fan</a></p>
+                  <p><a href="http://127.0.0.1:5000/confirm_fan?choice=no" class="email-link">No, keep it off</a></p>
+            </div>
+            </div>
+        </body>
+        </html>
+        """
 
-        part1 = MIMEText(text, "plain")
-        part2 = MIMEText(html, "html")
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
 
-        message.attach(part1)
-        message.attach(part2)
+    message.attach(part1)
+    message.attach(part2)
 
-        try:
-            with smtplib.SMTP("smtp.outlook.com", 587) as server:
-                server.starttls()
-                server.login(sender_email, password)
-                server.sendmail(sender_email, receiver_email, message.as_string())
-            print("Email sent successfully!")
-        except Exception as e:
-            print(f"Failed to send email: {e}")
+    try:
+        with smtplib.SMTP("smtp.outlook.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 # Function to send email notification for light
 def send_light_notification():
