@@ -103,24 +103,22 @@ def on_message(client, userdata, message):
                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
                 print("User info retrieved successfully:", user_info)
                 send_rfid_notification(user_info["name"])
-                # Check temperature threshold and send email if necessary
-                if temperature is not None and float(user_info["temp_threshold"]) < temperature and not email_sent:
-                    send_email_notification(temperature)
-                    email_sent = True
             else:
                 print("No user found with the provided NUID:", nuid_dec)
-                # If no user is found, use default user_info
+                # If no user is found, set user_info to default values
                 user_info = {
                     "user_id": "",
                     "name": "",
                     "temp_threshold": default_temp_threshold,
-                    "humidity_threshold": 0,
+                    "humidity_threshold": "0",
                     "light_intensity_threshold": default_light_threshold
                 }
-                # Check temperature threshold and send email if necessary
-                if temperature is not None and default_temp_threshold < temperature and not email_sent:
-                    send_email_notification(temperature)
+                # Check light intensity and trigger actions if below default
+                if light_intensity < default_light_threshold and not email_sent:
+                    send_light_notification()
                     email_sent = True
+                    GPIO.output(LED, GPIO.HIGH)
+                    light_on = True
         except Exception as e:
             print("Error:", e)
 
@@ -366,8 +364,8 @@ def sensor_data():
     humidity, temperature = read_dht_sensor()
     
     if temperature is not None:
-        # Check temperature threshold if user exists
-        if user_info["user_id"] != "Null":
+        if user_info["user_id"]:
+            # Check if temperature is higher than the active user's threshold
             if temperature > float(user_info["temp_threshold"]):
                 # Send email notification if not already sent
                 if not email_sent:
@@ -377,8 +375,8 @@ def sensor_data():
                 # Turn off email_sent flag if temperature is below threshold
                 email_sent = False
         else:
-            # Use default temperature threshold
-            if temperature > default_temp_threshold:
+            # Use default temperature threshold from user_info
+            if temperature > float(user_info.get("temp_threshold", default_temp_threshold)):
                 if not email_sent:
                     send_email_notification(temperature)
                     email_sent = True
