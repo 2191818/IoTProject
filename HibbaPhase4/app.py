@@ -49,9 +49,9 @@ default_light_threshold = 400
 user_info = {
     "user_id": "",
     "name": "",
-    "temp_threshold": 0,
+    "temp_threshold": default_temp_threshold,
     "humidity_threshold": 0,
-    "light_intensity_threshold": 0
+    "light_intensity_threshold": default_light_threshold
 }
 
 # MQTT configuration
