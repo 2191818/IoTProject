@@ -65,7 +65,7 @@ mqtt_topic_nuid_dec = "nuid_dec"
 mqtt_client = mqtt.Client()
 
 def on_message(client, userdata, message):
-    global light_intensity, email_sent, light_on, user_info, temperature_email_sent_for_user, previous_user_id
+    global light_intensity, email_sent, light_on, user_info
     
     if message.topic == mqtt_topic_light_intensity:
         light_intensity = int(message.payload.decode())
@@ -105,9 +105,20 @@ def on_message(client, userdata, message):
                 send_rfid_notification(user_info["name"])
             else:
                 print("No user found with the provided NUID:", nuid_dec)
-                # If no user is found, send temperature email notification
-                send_email_notification()
-            return render_template('index.html', **user_info)
+                # If no user is found, set user_info to default values
+                user_info = {
+                    "user_id": "",
+                    "name": "",
+                    "temp_threshold": default_temp_threshold,
+                    "humidity_threshold": "",
+                    "light_intensity_threshold": default_light_threshold
+                }
+                # Check light intensity and trigger actions if below default
+                if light_intensity < default_light_threshold and not email_sent:
+                    send_light_notification()
+                    email_sent = True
+                    GPIO.output(LED, GPIO.HIGH)
+                    light_on = True
         except Exception as e:
             print("Error:", e)
 
@@ -353,8 +364,8 @@ def sensor_data():
     humidity, temperature = read_dht_sensor()
     
     if temperature is not None:
-        # Check temperature threshold
-        if "temp_threshold" in user_info:
+        # Check temperature threshold if user exists
+        if user_info["user_id"] != "Null":
             if temperature > float(user_info["temp_threshold"]):
                 # Send email notification if not already sent
                 if not email_sent:
