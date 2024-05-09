@@ -54,8 +54,8 @@ user_info = {
 }
 
 # MQTT configuration
-mqtt_broker = "192.168.2.32"
-# mqtt_broker = "192.168.2.38"
+# mqtt_broker = "192.168.2.32"
+mqtt_broker = "192.168.2.38"
 mqtt_port = 1883
 mqtt_topic_light_intensity = "light_intensity"
 mqtt_topic_nuid_dec = "nuid_dec"
