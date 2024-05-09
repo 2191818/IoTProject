@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 import sqlite3
 import threading
 
+
 # Initialize Flask app
 app = Flask(__name__)
 
@@ -104,12 +105,12 @@ def on_message(client, userdata, message):
                 send_rfid_notification(user_info["name"])
             else:
                 print("No user found with the provided NUID:", nuid_dec)
-                # If no user is found, retrieve temperature from the sensor and send email notification
-                humidity, temperature = read_dht_sensor()
-                if temperature is not None:
-                    send_email_notification(temperature)
+                # If no user is found, send temperature email notification
+                send_email_notification()
+            return render_template('index.html', **user_info)
         except Exception as e:
             print("Error:", e)
+
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
 mqtt_client.connect(mqtt_broker, mqtt_port)
@@ -146,8 +147,6 @@ def update_profile():
     
     # Redirect to index route with updated user_info
     return redirect(url_for('index'))
-
-
 
 # Function to toggle the light
 def toggle_light():

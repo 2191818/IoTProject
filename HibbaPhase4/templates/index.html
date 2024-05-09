@@ -38,11 +38,11 @@
                 </div>
                 <h4><b>User Profile</b></h4>
                 <img src="../static/images/avatar.jpg" alt="Avatar" class="avatar">
-                <b>User ID: {{ user_id }}</b>
+                <b>User ID: <span id="user_id">{{ user_id }}</span></b>
                 <br>
-                <b>Name: {{ name }}</b>
+                <b>Name: <span id="user_name">{{ name }}</span></b>
                 <br>
-                <form action="/update_profile" method="POST">
+                <form id="profile_form" action="/update_profile" method="POST">
                     <div class="input-container">
                         <label for="temperature">Temperature Threshold:</label>
                         <input type="text" id="temperature" name="temperature" value="{{ temp_threshold }}">
@@ -62,7 +62,7 @@
                     <button type="submit" class="update-button" disabled>Update Values</button>
                     {% endif %}
                 </form>
-        </div>
+            </div>
         
         <table>
             <tr>
@@ -237,8 +237,6 @@
                         humidityGauge.init();
                         temperatureGauge.update(data.temperature, temperatureValue !== '' ? temperatureValue + '°C' : '');
                         humidityGauge.update(data.humidity, humidityValue !== '' ? humidityValue + '%' : '');
-                    } else {
-                        console.error('Invalid data received from server.');
                     }
                 });
             }
