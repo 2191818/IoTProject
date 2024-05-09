@@ -64,7 +64,8 @@ mqtt_topic_nuid_dec = "nuid_dec"
 mqtt_client = mqtt.Client()
 
 def on_message(client, userdata, message):
-    global light_intensity, email_sent, light_on, user_info
+    global light_intensity, email_sent, light_on, user_info, temperature_email_sent_for_user, previous_user_id
+    
     if message.topic == mqtt_topic_light_intensity:
         light_intensity = int(message.payload.decode())
         if "light_intensity_threshold" in user_info:
@@ -77,7 +78,6 @@ def on_message(client, userdata, message):
                 GPIO.output(LED, GPIO.LOW)
                 light_on = False
         else:
-            # Use default light threshold
             if light_intensity < default_light_threshold and not email_sent:
                 send_light_notification()
                 email_sent = True
@@ -88,10 +88,9 @@ def on_message(client, userdata, message):
                 light_on = False
     elif message.topic == mqtt_topic_nuid_dec:
         try:
-            nuid_dec = message.payload.decode().strip()  # Remove any leading/trailing whitespaces
-            print("Received NUID:", nuid_dec)  # Debugging
+            nuid_dec = message.payload.decode().strip()
+            print("Received NUID:", nuid_dec)
             conn = get_db_connection()
-        
             user = conn.execute("SELECT * FROM users WHERE REPLACE(UserID, ' ', '') = ?", 
                                 (nuid_dec.replace(" ", ""),)).fetchone()
             conn.close()
@@ -101,15 +100,16 @@ def on_message(client, userdata, message):
                 user_info["temp_threshold"] = user["Temp_Threshold"]
                 user_info["humidity_threshold"] = user["Humidity_Threshold"]
                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
-                print("User info retrieved successfully:", user_info)  # Debugging
-                # Send email
-                send_rfid_notification(user_info["name"])  
-
+                print("User info retrieved successfully:", user_info)
+                send_rfid_notification(user_info["name"])
             else:
-                print("No user found with the provided NUID:", nuid_dec)  # Debugging
+                print("No user found with the provided NUID:", nuid_dec)
+                # If no user is found, retrieve temperature from the sensor and send email notification
+                humidity, temperature = read_dht_sensor()
+                if temperature is not None:
+                    send_email_notification(temperature)
         except Exception as e:
             print("Error:", e)
-
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
 mqtt_client.connect(mqtt_broker, mqtt_port)
