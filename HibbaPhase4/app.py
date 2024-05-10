@@ -59,8 +59,8 @@ user_info = {
 }
 
 # MQTT configuration
-# mqtt_broker = "192.168.2.32"
-mqtt_broker = "172.20.10.4"
+mqtt_broker = "192.168.2.38"
+# mqtt_broker = "172.20.10.4"
 mqtt_port = 1883
 mqtt_topic_light_intensity = "light_intensity"
 mqtt_topic_nuid_dec = "nuid_dec"
@@ -267,8 +267,8 @@ def send_email_notification(temp):
 
 # Function to send email notification for light
 def send_light_notification():
-    sender_email = "iot-master-o@outlook.com"
-    receiver_email = "iot-master-o@outlook.com"
+    sender_email = "iot-temp@outlook.com"
+    receiver_email = "iot-temp@outlook.com"
     password = "iot4life"
     
     message = MIMEMultipart()
@@ -296,8 +296,8 @@ def send_light_notification():
         
         
 def send_rfid_notification(user_name):
-    sender_email = "iot-master-o@outlook.com"
-    receiver_email = "iot-master-o@outlook.com"
+    sender_email = "iot-temp@outlook.com"
+    receiver_email = "iot-temp@outlook.com"
     password = "iot4life"
 
     message = MIMEMultipart("alternative")
