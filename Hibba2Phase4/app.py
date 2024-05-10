@@ -60,7 +60,8 @@ user_info = {
 }
 
 # MQTT configuration
-mqtt_broker = "192.168.2.32"
+mqtt_broker = "172.20.10.7"
+# mqtt_broker = "192.168.2.32"
 # mqtt_broker = "172.20.10.4"
 mqtt_port = 1883
 mqtt_topic_light_intensity = "light_intensity"
@@ -70,29 +71,27 @@ mqtt_topic_nuid_dec = "nuid_dec"
 mqtt_client = mqtt.Client()
 
 def on_message(client, userdata, message):
-    global light_intensity, email_sent, light_on, user_info
+    global light_intensity, email_sent, light_on, user_info, temp_email_sent
     
     if message.topic == mqtt_topic_light_intensity:
         light_intensity = int(message.payload.decode())
         if "light_intensity_threshold" in user_info:
             if light_intensity < int(user_info["light_intensity_threshold"]) and not email_sent:
                 send_light_notification()
-                email_sent = True  # Set email_sent to True after sending the email
+                email_sent = True
                 GPIO.output(LED, GPIO.HIGH)
                 light_on = True
             elif light_intensity >= int(user_info["light_intensity_threshold"]) and email_sent:
-                # Reset email_sent to False when light intensity goes above the threshold
                 email_sent = False
                 GPIO.output(LED, GPIO.LOW)
                 light_on = False
         else:
             if light_intensity < default_light_threshold and not email_sent:
                 send_light_notification()
-                email_sent = True  # Set email_sent to True after sending the email
+                email_sent = True
                 GPIO.output(LED, GPIO.HIGH)
                 light_on = True
             elif light_intensity >= default_light_threshold and email_sent:
-                # Reset email_sent to False when light intensity goes above the default threshold
                 email_sent = False
                 GPIO.output(LED, GPIO.LOW)
                 light_on = False
@@ -112,10 +111,11 @@ def on_message(client, userdata, message):
                 user_info["light_intensity_threshold"] = user["Light_Intensity_Threshold"]
                 print("User info retrieved successfully:", user_info)
                 send_rfid_notification(user_info["name"])
-                default_temp_threshold = user_info["temp_threshold"]
+                # Reset email flags to trigger emails again
+                email_sent = False
+                temp_email_sent = False
             else:
                 print("No user found with the provided NUID:", nuid_dec)
-                # If no user is found, set user_info to default values
                 user_info = {
                     "user_id": "",
                     "name": "",
@@ -123,7 +123,6 @@ def on_message(client, userdata, message):
                     "humidity_threshold": "0",
                     "light_intensity_threshold": default_light_threshold
                 }
-                # Check light intensity and trigger actions if below default
                 if light_intensity < default_light_threshold and not email_sent:
                     send_light_notification()
                     email_sent = True
@@ -131,6 +130,7 @@ def on_message(client, userdata, message):
                     light_on = True
         except Exception as e:
             print("Error:", e)
+
 
 # Set MQTT client callbacks and connect
 mqtt_client.on_message = on_message
@@ -162,7 +162,7 @@ def update_profile():
     user_info["temp_threshold"] = temperature_threshold
     user_info["humidity_threshold"] = humidity_threshold
     user_info["light_intensity_threshold"] = light_intensity_threshold
-    default_temp_threshold = user_info["temp_threshold"]
+    default_temp_threshold = user_info["temp_threshold"];
 
     # Debug message
     print("User info updated:", user_info)
@@ -352,9 +352,9 @@ def stream_rfid():
                     f"data: light_intensity_threshold: {user_info['light_intensity_threshold']}\n\n"
                 )
                 yield sse_message
-                user_info["user_id"] = None  # Reset after sending
+                user_info["user_id"] = user_info["user_id"]
             # Control frequency of events
-            time.sleep(1)
+            time.sleep(10)
     return Response(event_stream(), mimetype="text/event-stream")
 
 
@@ -408,71 +408,6 @@ def sensor_data():
                 temp_email_sent = True  # Set temp_email_sent to True after sending the email
     
     return jsonify({'temperature': temperature, 'humidity': humidity})
-
-
-# @app.route('/sensor_data')
-# def sensor_data():
-#     humidity, temperature = read_dht_sensor()
-#     if temperature is not None:
-#         if temperature > default_temp_threshold and not temp_email_sent:
-#             # Send email notification
-#             send_email_notification(temperature)
-#             email_sent = True
-#     
-#     return jsonify({'temperature': temperature, 'humidity': humidity})
-
-
-# @app.route('/sensor_data')
-# def sensor_data():
-#     global light_on, email_sent
-#     
-#     # Read sensor data
-#     humidity, temperature = read_dht_sensor()
-#     
-#     if temperature is not None:
-#         if user_info["user_id"]:
-#             # Check if temperature is higher than the active user's threshold
-#             if temperature > float(user_info["temp_threshold"]):
-#                 # Send email notification if not already sent
-#                 if not email_sent:
-#                     send_email_notification(temperature)
-#                     email_sent = True
-#             else:
-#                 # Turn off email_sent flag if temperature is below threshold
-#                 email_sent = False
-#         else:
-#             # Use default temperature threshold from user_info
-#             if temperature > float(user_info.get("temp_threshold", default_temp_threshold)):
-#                 if not email_sent:
-#                     send_email_notification(temperature)
-#                     email_sent = True
-#             else:
-#                 email_sent = False
-#             
-#     # Check light intensity threshold
-#     if "user_id" in user_info:
-#         if light_intensity < int(user_info["light_intensity_threshold"]):
-#             # Turn on the light using the user's threshold
-#             if not light_on:
-#                 GPIO.output(LED, GPIO.HIGH)
-#                 light_on = True
-#         else:
-#             # Turn off the light if it's on
-#             if light_on:
-#                 GPIO.output(LED, GPIO.LOW)
-#                 light_on = False
-#     else:
-#         # Use default light intensity threshold
-#         if light_intensity < default_light_threshold:
-#             if not light_on:
-#                 GPIO.output(LED, GPIO.HIGH)
-#                 light_on = True
-#         else:
-#             if light_on:
-#                 GPIO.output(LED, GPIO.LOW)
-#                 light_on = False
-#     
-#     return jsonify({'temperature': temperature, 'humidity': humidity, 'light_intensity': light_intensity})
 
 @app.route('/light_status')
 def light_status():

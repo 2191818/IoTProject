@@ -4,8 +4,12 @@
 #include <MFRC522.h>
 
 // WiFi credentials
+const char* ssid = "iPhone";
+const char* password = "Hibba2000";
+/*
 const char* ssid = "BELL485";
 const char* password = "Amin1966";
+*/
 
 /*
 const char* ssid = "LHE786";
@@ -26,7 +30,8 @@ const char* password = "14730078";
 
 
 // MQTT broker
-const char* mqtt_server = "192.168.2.32";
+const char* mqtt_server = "172.20.10.7";
+//const char* mqtt_server = "192.168.2.32";
 //const char* mqtt_server = "192.168.2.38";
 //const char* mqtt_server = "192.168.0.137";
 //const char* mqtt_server = "172.20.10.4";
