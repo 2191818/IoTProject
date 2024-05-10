@@ -391,15 +391,24 @@ def sensor_data():
     humidity, temperature = read_dht_sensor()
     
     if temperature is not None:
-        # Check temperature threshold
-        if temperature > float(user_info.get("temp_threshold", default_temp_threshold)):
-            # Send email notification if not already sent
-            if not email_sent:
-                send_email_notification(temperature)
-                email_sent = True
+        if user_info["user_id"]:
+            # Check if temperature is higher than the active user's threshold
+            if temperature > float(user_info["temp_threshold"]):
+                # Send email notification if not already sent
+                if not email_sent:
+                    send_email_notification(temperature)
+                    email_sent = True
+            else:
+                # Turn off email_sent flag if temperature is below threshold
+                email_sent = False
         else:
-            # Turn off email_sent flag if temperature is below threshold
-            email_sent = False
+            # Use default temperature threshold from user_info
+            if temperature > float(user_info.get("temp_threshold", default_temp_threshold)):
+                if not email_sent:
+                    send_email_notification(temperature)
+                    email_sent = True
+            else:
+                email_sent = False
             
     # Check light intensity threshold
     if "user_id" in user_info:
