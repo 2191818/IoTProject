@@ -124,7 +124,7 @@
                                     </div>
                                     <div class="slider-value center">{{ light_intensity }}</div>
                                     <p class="light-status">Status: {{ 'ON' if light_status else 'OFF' }}</p>
-                                    <p class="email-status">Email Status: {{ 'SENT' if light_status else 'NOT SENT' }}</p>
+                                    <p class="email-status">Email Status: {% if light_status %}Sent{% else %}Not Sent{% endif %}</p>
                                 </div>
                                 <div class="wrapper" style="margin: 50px;">
                                     <div class="light">
