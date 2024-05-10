@@ -1,0 +1,13 @@
+PROJECT ASSETS
+
+Gauge:
+https://codepen.io/bcarvalho/pen/oGGNea
+
+Light Bulb:
+https://github.com/WebDevPie/Light-Bulb-On-Off-Toggle
+
+Fan:
+https://codepen.io/masoomulhaqs/pen/gPeYyK
+
+Slider:
+https://codepen.io/luiscarlin/pen/mQBzWV
