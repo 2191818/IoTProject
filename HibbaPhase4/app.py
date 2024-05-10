@@ -76,7 +76,7 @@ def on_message(client, userdata, message):
         if "light_intensity_threshold" in user_info:
             if light_intensity < int(user_info["light_intensity_threshold"]) and not email_sent:
                 send_light_notification()
-                email_sent = True
+                email_sent = True  # Only set email_sent to True when sending light email
                 GPIO.output(LED, GPIO.HIGH)
                 light_on = True
             elif light_intensity >= int(user_info["light_intensity_threshold"]):
@@ -85,7 +85,7 @@ def on_message(client, userdata, message):
         else:
             if light_intensity < default_light_threshold and not email_sent:
                 send_light_notification()
-                email_sent = True
+                email_sent = True  # Only set email_sent to True when sending light email
                 GPIO.output(LED, GPIO.HIGH)
                 light_on = True
             elif light_intensity >= default_light_threshold:
