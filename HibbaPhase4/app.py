@@ -82,6 +82,7 @@ def on_message(client, userdata, message):
             elif light_intensity >= int(user_info["light_intensity_threshold"]):
                 GPIO.output(LED, GPIO.LOW)
                 light_on = False
+                email_sent = False  # Reset email_sent when light is off
         else:
             if light_intensity < default_light_threshold and not email_sent:
                 send_light_notification()
@@ -91,6 +92,7 @@ def on_message(client, userdata, message):
             elif light_intensity >= default_light_threshold:
                 GPIO.output(LED, GPIO.LOW)
                 light_on = False
+                email_sent = False  # Reset email_sent when light is off
     elif message.topic == mqtt_topic_nuid_dec:
         try:
             nuid_dec = message.payload.decode().strip()
