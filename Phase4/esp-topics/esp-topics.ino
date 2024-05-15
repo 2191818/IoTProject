@@ -30,7 +30,7 @@ const char* password = "14730078";
 
 
 // MQTT broker
-const char* mqtt_server = "172.20.10.7";
+const char* mqtt_server = "172.20.10.11";
 //const char* mqtt_server = "192.168.2.32";
 //const char* mqtt_server = "192.168.2.38";
 //const char* mqtt_server = "192.168.0.137";

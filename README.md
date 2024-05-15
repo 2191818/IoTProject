@@ -11,20 +11,24 @@
 
 
 ## Phases
+
 ```mermaid
 graph TD
     A[IoT Project] --> B(Phase 1)
     A --> C(Phase 2)
     A --> D(Phase 3)
-    B --> E(LED)
-    B --> F(Flask)
-    B --> G(Base HTML, CSS)
-    C --> H(DHT11)
-    C --> I(Motor as a Fan)
-    C --> J(Javascript)
-    C --> K(smtplib for Sending Emails)
-    D --> L(MQTT and ESP8266 WiFi)
-    D --> M(PhotoResistor with ESP8266)
+    A --> E(Phase 4)
+    B --> F(LED)
+    B --> G(Flask)
+    B --> H(Base HTML, CSS)
+    C --> I(DHT11)
+    C --> J(Motor as a Fan)
+    C --> K(Javascript)
+    C --> L(smtplib for Sending Emails)
+    D --> M(MQTT and ESP8266 WiFi)
+    D --> N(PhotoResistor with ESP8266)
+    E --> P(SQLite)
+    E --> S(RC522 RFID Module)
 ```
 
 ## Tools
@@ -45,35 +49,25 @@ The SQLite database contains the following key table:
 The "users" table stores user-specific data for setting environmental thresholds in a smart home environment.
 
 #### Columns
-- **UserID** (Primary Key, Integer): A unique identifier for each user in the system.
-- **Name** (String): The name of the user.
-- **Temp. Threshold** (Decimal): The temperature threshold set by the user in degrees Celsius. This value might trigger a specific action when reached.
-- **Humidity Threshold** (Decimal): The humidity threshold set by the user in percentage. This value might trigger a specific action when reached.
-- **Light Intensity Threshold** (Decimal): The light intensity threshold set by the user in lumens. This value might trigger a specific action when reached.
+- **UserID** (Text): A unique identifier for each user in the system.
+- **Name** (Text): The name of the user.
+- **Temp. Threshold** (Integer): The temperature threshold set by the user in degrees Celsius. This value might trigger a specific action when reached.
+- **Humidity Threshold** (Integer): The humidity threshold set by the user in percentage. This value might trigger a specific action when reached.
+- **Light Intensity Threshold** (Integer): The light intensity threshold set by the user in lumens. This value might trigger a specific action when reached.
 
 ### Sample Data
 To better understand the structure of the "Home" table, here's a sample set of data entries:
 
-| UserID | Name  | Temp. Threshold | Humidity Threshold | Light Intensity Threshold | role_id |
-|--------|-------|-----------------|--------------------|---------------------------|---------|
-| 0      | Admin | 24.5            | 50.0               | 400.0                     | 1       |
-| 1      | Nabil | 22.5            | 50.0               | 300.0                     | 1       |
-| 2      | Hibba | 24.0            | 60.0               | 500.0                     | 2       |
-| 3      |Arsalan| 21.0            | 55.0               | 400.0                     | 2       |
-| 4      |visitor| 20.0            | 50.0               | 500.0                     | 3       |
 
+| UserID             | Name    | Temp. Threshold | Humidity Threshold | Light Intensity Threshold |
+|--------------------|---------|-----------------|--------------------|---------------------------|
+| 76 208 77 73       | Hibba   | 26              | 55                 | 450                       |
+| 3 241 208 4        | Qaraman | 27              | 48                 | 470                       |
+| 93 51 11 50        | Arsalan | 25              | 55                 | 500                       |
+| 181 157 143 172    | Saeed   | 24              | 60                 | 490                       |
+| 211 11 23 14       | Nabil   | 25              | 50                 | 500                       |
+| 115 110 208 15     | Ramadan | 27              | 58                 | 600                       |
 
-### auth Table
-The "auth" table storesroles data for how much controller they have.
-
-### Sample Data
-To better understand the structure of the "auth" table, here's a the set of data entries:
-
-| iD     | Name  | 
-|--------|-------|
-| 1      | admin | 
-| 2      | user  | 
-| 3      | visitor | 
 
 ## Authors
 

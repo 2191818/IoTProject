@@ -183,6 +183,28 @@ footer {
 
 .input-container input {
     width: 100px;
+    color: black; 
+}
+
+.update-button {
+    background-color: #003366; 
+    color: white;
+    padding: 10px 20px; 
+    border: none;
+    border-radius: 4px; 
+    cursor: pointer;
+}
+
+/* Hover effect */
+.update-button:hover {
+    background-color: #001F3F;
+}
+
+
+.update-button[disabled] {
+    background-color: #cccccc;
+    color: #666666; 
+    cursor: not-allowed; 
 }
 
 /* gauge.css */
