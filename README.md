@@ -20,15 +20,13 @@ graph TD
     A --> E(Phase 4)
     B --> F(LED)
     B --> G(Flask)
-    B --> H(Base HTML, CSS)
     C --> I(DHT11)
-    C --> J(Motor as a Fan)
-    C --> K(Javascript)
-    C --> L(smtplib for Sending Emails)
+    C --> J(Motor Fan)
+    C --> L(Send+Receive Emails <smtplib>)
     D --> M(MQTT and ESP8266 WiFi)
-    D --> N(PhotoResistor with ESP8266)
+    D --> N(PhotoResistor)
     E --> P(SQLite)
-    E --> S(RC522 RFID Module)
+    E --> S(RFID tags)
 ```
 
 ## Tools
